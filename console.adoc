@@ -1,0 +1,13 @@
+== Console
+
+=== No access to pty for tool
+
+If a tool cannot open a pseudo terminal, use
+
+....
+screen /dev/null
+....
+
+_NOTE_: It is not good to alter the file access rights for the dev node
+since this would allow access to your terminal.
+

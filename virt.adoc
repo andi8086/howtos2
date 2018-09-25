@@ -1,0 +1,57 @@
+== Virtualization
+
+=== Docker
+
+==== Not allowed to talk to docker daemon
+
+Add user to `docker` group.
+
+==== Mount into container
+
+....
+docker run -v /path/on/host:/path/in/container
+....
+
+_NOTE_: Relative paths are not allowed.
+
+==== Verify environment
+
+....
+sudo systemctl show --property Environment docker
+....
+
+==== Proxy configuration for docker
+
+Both docker daemon and container need a proxy configuration. Easiest way
+is to use a `.docker/config.json`:
+
+....
+{
+"proxies": {
+        "default": {
+            "httpProxy": "http://ip:port"
+            "httpsProxy": "http://ip:port"
+            "noProxy": ".domain.d,.domainB.c,ip"
+        }
+    }
+}
+....
+
+Other ways are
+
+`/etc/systemd/system/docker.service.d/http-proxy.conf`:
+
+....
+[Service]
+Environment="HTTP_PROXY=http://ip:port"
+Environment="HTTPS_PROXY=http://ip:port"
+Environment="FTP_PROXY=..."
+Environment=NO_PROXY=..."
+....
+
+and command-line parameters
+
+....
+docker run -e "http_proxy=..." -e "https_proxy=..." ...
+....
+

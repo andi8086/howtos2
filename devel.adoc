@@ -1,0 +1,163 @@
+== Development
+
+=== Versioning
+
+==== Git
+
+===== Merge a branch
+
+Never merge abranch and allow non-fast-forwarding!
+
+Always use:
+
+....
+git merge --ff-only <branch>
+....
+
+===== Change merge-commit to normal commit
+
+The only difference between a merge commit and a normal commit is that a
+merge commit has two parents. Use
+
+....
+git replace --edit <COMMIT SHA>
+....
+
+Afterwards, only the `view` of the commit graph is altered, not the
+commits on the branch themselves. To reify this, use
+
+....
+git filter-branch -- --all
+....
+
+===== Change author of commit
+
+....
+git rebase -i <SHA to change>
+....
+
+Mark commit as `edit`.
+
+Use
+
+....
+git commit --amend --reset-author
+....
+
+=== C/C++
+
+==== Order of object files in static library
+
+The order does not matter. Just package all object files with
+
+```
+ar rcv output.a file1.o file2.o file3.o
+```
+
+This is interesting, because we don't need the dependency file generation by the compiler then.
+
+==== Build kernel
+
+Build it out of tree! From within the build-directory, use
+
+....
+make -C <path-to-source> O=$(pwd) <target>
+....
+
+==== autotools
+
+New Project with autotools
+
+* install `autotools`
+* install `automake
+
+Create project directory tree. Create source files.
+
+....
+autoscan
+....
+
+Rename `configure.scan` to `configure.ac`. Edit `configure.ac`
+(`AC_INIT` line).
+
+Write `Makefile.am` (one or more). Edit `configure.ac` and add
+`AM_INIT_AUTOMAKE`.
+
+Then in `lib/Makefile.am`:
+
+* If you don’t want to install a lib, use `noinst_LIBRARIES`
+* static libs need `RANLIB`, so add `AC_PROG_RANLIB` into the
+`configure.ac`
+* Do not use `CFLAGS` and `LDFLAGS`, but `AM_CFLAGS` and `AM_LDFLAGS`.
+
+==== Cross-Compilation
+
+Build cross-compiler from `aur` needs the following steps:
+
+* Have native: `elfutils`, `gperf`
+
+Build in the following order:
+
+1.  binutils
+2.  gcc-stage1
+3.  linux-api-headers
+4.  glibc-headers
+5.  gcc-stage2 (removes stage1)
+6.  glibc (removes glibc-headers)
+7.  gcc (removes stage2)
+
+=== Python
+
+Interesting modules:
+
+* `Requests` - http lib
+* `Scrapy` - webscraping
+* `wxPython` - GUI
+* `Pillow` - imaging lib
+* `SQLAlchemy` - database lib
+* `BeautifulSoup` - xml and html parser
+* `Twisted` - network app dev
+* `NumPy` - Advanced maths
+* `SciPy` - algorithms and mathematical tools for science
+* `matplotlib` - data plotting
+* `Pygame` - 2d game dev
+* `Pyglet` - 3d and multimedia framework
+* `pyQT` - GUI
+* `pyGtk` - GUI
+* `Scapy` - packet sniffer and analyzer
+* `pywin32` - for windows b’’h
+* `nltk` - natural language toolkig
+* `nose` - testing framework
+* `SymPy` - symbolic maths
+* `IPython` - prompt with extras
+
+=== Ruby
+
+==== Local gems for `bundle` and `gem`
+
+You can use the `--path` option to `bundle` for project dependent gems directory, or you
+can globally configure a user-gems directory for all user projects:
+
+```
+bundle config path "~/.gem"
+```
+
+[[asciidoc_ruby]]
+===== asciidoctor-pdf
+
+```
+bundle init
+cat <<EOF > Gemfile
+gem 'asciidoctor-pdf'
+gem 'rouge'
+EOF
+bundle install
+```
+
+Run with
+
+```
+bundle exec asciidoctor-pdf <filename>
+```
+
+

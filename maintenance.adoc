@@ -1,0 +1,10 @@
+== System Maintenance
+
+=== pacman
+
+==== Remove package disregarding dependencies
+
+....
+pacman -Rdd <package>
+....
+

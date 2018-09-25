@@ -1,0 +1,57 @@
+== Filesystem
+
+=== Managing disk space
+
+To clean up your harddrive, use `ncdu`. It is faster than `filelight`.
+
+=== To many files
+
+If for example `rm` refuses to delete files, because `*` cannot be
+expanded since the argument list would get too log, you can use `find`:
+
+....
+find /path/to/dir -delete
+....
+
+If you don’t want that `/path/to/dir` itself is also removed, use
+
+....
+find /path/to/dir -type f -delete
+....
+
+=== Handling multi-partition disk images
+
+==== kpartx
+
+....
+git clone https://aur.archlinux.org/multipath-tools.git
+....
+
+==== Access DOS-drives inside images with mcopy (mtools)
+
+You can assign a drive letter with an image file with `~/.mtoolsrc`
+
+....
+drive c: file="<path-to-image>"
+....
+
+Copy `file` from current directory into the drive assigned with the
+partition at `offset` inside `disk.img`:
+
+....
+mcopy -i disk.img@@offset file ::/
+....
+
+You can get the offset with `fdisk -l disk.img` and multiply `Start`
+with `512`.
+
+....
+fdisk -l disk.img | grep 'img1' | awk '{print $3*512}'
+....
+
+==== Information about dos drive
+
+....
+minfo -i disk.img@@offset
+....
+
