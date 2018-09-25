@@ -2,3 +2,4 @@ gems/*
 *.pdf
 *.lock
 .bundle/*
+*.html
