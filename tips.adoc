@@ -1,11 +1,12 @@
 = Linux Tips and Tricks
-Andreas Reichel
+:source-highlighter: rouge
 :numbered:
 :doctype: book
 :sectnums:
 :toclevels: 5
 :sectnumlevels: 5
 :toc:
+Andreas Reichel
 
 include::boot.adoc[]
 

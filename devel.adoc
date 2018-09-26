@@ -10,39 +10,44 @@ Never merge abranch and allow non-fast-forwarding!
 
 Always use:
 
-....
+[source,bash]
+----
 git merge --ff-only <branch>
-....
+----
 
 ===== Change merge-commit to normal commit
 
 The only difference between a merge commit and a normal commit is that a
 merge commit has two parents. Use
 
-....
+[source,bash]
+----
 git replace --edit <COMMIT SHA>
-....
+----
 
 Afterwards, only the `view` of the commit graph is altered, not the
 commits on the branch themselves. To reify this, use
 
-....
+[source,bash]
+----
 git filter-branch -- --all
-....
+----
 
 ===== Change author of commit
 
-....
+[source,bash]
+----
 git rebase -i <SHA to change>
-....
+----
 
 Mark commit as `edit`.
 
 Use
 
-....
+[source,bash]
+----
 git commit --amend --reset-author
-....
+----
 
 === C/C++
 
@@ -50,9 +55,10 @@ git commit --amend --reset-author
 
 The order does not matter. Just package all object files with
 
-```
+[source,bash]
+----
 ar rcv output.a file1.o file2.o file3.o
-```
+----
 
 This is interesting, because we don't need the dependency file generation by the compiler then.
 
@@ -60,9 +66,10 @@ This is interesting, because we don't need the dependency file generation by the
 
 Build it out of tree! From within the build-directory, use
 
-....
+[source,bash]
+----
 make -C <path-to-source> O=$(pwd) <target>
-....
+----
 
 ==== autotools
 
@@ -73,9 +80,10 @@ New Project with autotools
 
 Create project directory tree. Create source files.
 
-....
+[source,bash]
+----
 autoscan
-....
+----
 
 Rename `configure.scan` to `configure.ac`. Edit `configure.ac`
 (`AC_INIT` line).
@@ -105,6 +113,140 @@ Build in the following order:
 5.  gcc-stage2 (removes stage1)
 6.  glibc (removes glibc-headers)
 7.  gcc (removes stage2)
+
+==== gcc `instrument functions` and profiling
+
+Programs with `address randomization` are hard to debug since `addr2line` does not work with these addresses.
+
+Test program `ext.c`:
+
+[source,c,linenums]
+----
+int B(int a)
+{
+	return a >> 2;
+}
+----
+
+Test program `main.c`:
+
+[source,c,linenums]
+----
+#define _GNU_SOURCE
+#include <execinfo.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <string.h>
+#include <link.h>
+#include <dlfcn.h>
+
+char *reloc_addr;
+
+extern int B(int x);
+
+int A() {
+	printf("This is function A.\n");
+	volatile int i = B(8);
+}
+
+__attribute__((no_instrument_function))
+void __cyg_profile_func_enter(void *this, void *caller)
+{
+	void *buffer[100];
+	char **strings;
+
+	int nptrs = backtrace(buffer, 3);
+
+	strings = backtrace_symbols(buffer, nptrs);
+	if (strings == NULL) {
+		perror("backtrace_symbols");
+		exit(EXIT_FAILURE);
+	}
+
+	Dl_info i, j;
+
+	memset(&i,0,sizeof(i));
+	memset(&j,0,sizeof(i));
+	if (dladdr(caller, &i) != 0);
+	if (dladdr(this, &j) != 0);
+
+	printf("instrument: %p <rel: %p> (=%s) called %p <rel: %p> (=%s)\n", caller,
+		(char *)caller - reloc_addr,
+		i.dli_sname,
+		this,
+		(char *)this - reloc_addr,
+		j.dli_sname);
+
+	if (nptrs == 3) {
+		printf("backtrace: %s called %s\n", strings[2], strings[1]);
+	}
+
+	free(strings);
+}
+
+__attribute__((no_instrument_function))
+static int callback(struct dl_phdr_info *info, size_t size, void *data)
+{
+	int j;
+	for (j = 0; j < info->dlpi_phnum; j++) {
+		if (info->dlpi_phdr[j].p_type == PT_LOAD) {
+			const char *beg = (const char*) info->dlpi_addr + info->dlpi_phdr[j].p_vaddr;
+			const char *end = beg + info->dlpi_phdr[j].p_memsz;
+			const char *cb = (const char *)&callback;
+			if (beg < cb && cb < end) {
+				// Found PT_LOAD that "covers" callback().
+				printf("ELF header is at %p, image linked at 0x%zx, relocation: 0x%zx\n",
+					beg, info->dlpi_phdr[j].p_vaddr, info->dlpi_addr);
+				reloc_addr = (char *)info->dlpi_addr;
+				return 1;
+			}
+			return 0;
+		}
+	}
+	return 0;
+}
+
+__attribute__((constructor,no_instrument_function))
+void initprog() {
+	dl_iterate_phdr(callback, NULL);
+}
+
+__attribute__((no_instrument_function))
+int main(void)
+{
+	A();
+	return 0;
+}
+----
+
+Compile with
+
+[source,bash]
+----
+gcc -no-pie -rdynamic -g -pg -finstrument-functions main.c ext.c -ldl -o main
+----
+
+Check with
+
+[source,bash]
+----
+./main
+REL_ADDR="$(./main | grep -o "rel:\ 0[x][0-9a-f]\+" | cut -d' ' -f2)" ; for a in $(echo $REL_ADDR); do addr2line -e ./main $a -f; done
+----
+
+it should output something like
+
+----
+main
+/home/projects/Cprofile/main.c:85
+A
+/home/projects/Cprofile/main.c:14
+A
+/home/projects/Cprofile/main.c:16
+B
+/home/projects/Cprofile/ext.c:2
+----
 
 === Python
 
@@ -138,26 +280,28 @@ Interesting modules:
 You can use the `--path` option to `bundle` for project dependent gems directory, or you
 can globally configure a user-gems directory for all user projects:
 
-```
+[source,bash]
+----
 bundle config path "~/.gem"
-```
+----
 
 [[asciidoc_ruby]]
 ===== asciidoctor-pdf
 
-```
+[source,bash]
+----
 bundle init
 cat <<EOF > Gemfile
 gem 'asciidoctor-pdf'
 gem 'rouge'
 EOF
 bundle install
-```
+----
 
 Run with
 
-```
+[source,bash]
+----
 bundle exec asciidoctor-pdf <filename>
-```
-
+----
 
