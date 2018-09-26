@@ -1,0 +1,43 @@
+== Xorg
+
+Config snippets reside in `/etc/X11/xorg.conf.d/`, for example `10-keyboard.conf`.
+
+=== Cannot connect to server
+
+Try `xhost +` to allow connections from everyone.
+Access can later be restricted to a whitelist again with `xhost -`.
+
+Additional access control list is `/etc/Xn.hosts` with display number
+`n`. It contains entries a la `family:name`. See the man page `XHOST(1)`.
+
+=== X forwarding via `ssh`
+
+On the server, enable `X11Forwarding yes` in `/etc/ssh/sshd_config`.
+On the client, use `ssh -X`. The program `xauth` must be present on the server. `ssh` automatically sets `XAUTHORITY` and `DISPLAY` environment variables.
+
+=== Keyboard layout switching
+
+XOrg config snippet:
+....
+Section "InputClass"
+	Identifier	"Keyboard Defaults"
+	MatchIsKeyboard	"yes"
+	Option "XkbLayout" "us,de"
+	Option "XkbVariant" "altgr-intl"
+	Option "XkbOptions" "grp:alt_shift_toggle"
+EndSection
+....
+
+Layout switching can also be achieved with `setxkbmap`.
+
+....
+setxkbmap -rules xorg -model pc104 -laout us -option ""
+....
+
+or
+
+....
+setxkbmap -rules xorg -model logicordless -layout "us,cz,de" \
+          -option "grp:alt_shift_toggle"
+....
+

@@ -9,7 +9,13 @@ Andreas Reichel
 
 include::boot.adoc[]
 
+include::kernel.adoc[]
+
 include::console.adoc[]
+
+include::net.adoc[]
+
+include::X.adoc[]
 
 include::filesys.adoc[]
 

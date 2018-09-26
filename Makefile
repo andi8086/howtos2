@@ -15,7 +15,10 @@ DOCFILES := tips.adoc \
 		doc.adoc \
 		filesys.adoc \
 		maintenance.adoc \
-		virt.adoc
+		virt.adoc \
+		X.adoc \
+		net.adoc \
+		kernel.adoc
 
 tips.pdf: $(DOCFILES)
 	BUNDLE_PATH=./gems bundle exec asciidoctor-pdf tips.adoc

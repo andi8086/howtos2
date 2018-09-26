@@ -1,0 +1,30 @@
+== Kernel
+
+=== Prevent module from being loaded
+
+Add blacklist for module to a conf file in `/etc/modprobe.d/` with
+
+....
+blacklist <module_name>
+....
+
+or
+
+....
+install <module_name> /bin/false
+....
+
+where with the latter the `root` user can still override with `modprobe -i`.
+To see which modules are blacklisted, use
+
+....
+modprobe --showconfig | grep "^install.*false\|^blacklist"
+....
+
+=== Set options for module to load
+
+Add options for module to a conf file in `/etc/modprobe.d/` with
+
+....
+options <module_name> <param>=<value>
+....

@@ -1,0 +1,76 @@
+== Networking
+
+=== NAT and IP forwarding
+
+Add needed rules to `FORWARD` chain in firewall:
+....
+iptables -A FORWARD -i eth1 -j ACCEPT
+iptables -A FORWARD -o eth1 -j ACCEPT
+....
+
+Check that `ipv4.ip_foward=1`:
+
+One of both commands:
+
+....
+sysctl net.ipv4.ip_forward
+cat /proc/sys/net/ipv4/ip_forward
+....
+
+Enable with one of both commands:
+
+....
+sysctl -w net.ipv4.ip_forward=1
+echo 1 > /proc/sys/net/ipv4/ip_forward
+....
+
+=== Monitor `traffic`
+
+Following programs are useful: `iptraf-ng`, `wireshark`.
+
+=== Config with `systemd`
+
+==== bridge with NAT and DHCP server
+
+`/etc/systemd/network/bridge.netdev`:
+....
+[NetDev]
+Name=br0
+Kind=bridge
+....
+
+`/etc/systemd/network/bridge.network`:
+....
+[Match]
+Name=br0
+
+[Network]
+Address=10.0.0.88/24
+IPForward=yes
+IPMasquerade=yes
+DHCPServer=yes
+....
+
+===== Auto-add tap devices to bridge
+
+`/etc/systemd/network/tap-br.network`:
+....
+[Match]
+name=tap*
+
+[Network]
+Bridge=br0
+....
+
+==== Auto DHCP with LAN network
+
+`/etc/systemd/network/something.network`:
+....
+[Match]
+Name=enp0s25
+
+[Network]
+DHCP=ipv4
+....
+
+
