@@ -73,4 +73,24 @@ Name=enp0s25
 DHCP=ipv4
 ....
 
+=== `netcat`
+
+==== Send a file from a client to a server
+
+On the server, listen to a port, for example `udp` port `4172`
+....
+nc -l -u -p 4172 > <filename>
+....
+
+On the client, send with
+....
+cat <filename> | nc -u <ip-of-server> 4172
+....
+
+==== One shot file server
+
+Serve file for first HTTP request
+....
+ { printf 'HTTP/1.0 200 OK\r\nContent-Length: %d\r\n\r\n' "$(wc -c < some.file)"; cat some.file; } | nc -l 8080
+....
 
