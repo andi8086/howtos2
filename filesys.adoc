@@ -9,51 +9,58 @@ To clean up your harddrive, use `ncdu`. It is faster than `filelight`.
 If for example `rm` refuses to delete files, because `*` cannot be
 expanded since the argument list would get too log, you can use `find`:
 
-....
+[source,bash]
+----
 find /path/to/dir -delete
-....
+----
 
 If you don’t want that `/path/to/dir` itself is also removed, use
 
-....
+[source,bash]
+----
 find /path/to/dir -type f -delete
-....
+----
 
 === Handling multi-partition disk images
 
 ==== kpartx
 
-....
+[source,bash]
+----
 git clone https://aur.archlinux.org/multipath-tools.git
-....
+----
 
 ==== Access DOS-drives inside images with mcopy (mtools)
 
 You can assign a drive letter with an image file with `~/.mtoolsrc`
 
-....
+[source,bash]
+----
 drive c: file="<path-to-image>"
-....
+----
 
 Copy `file` from current directory into the drive assigned with the
 partition at `offset` inside `disk.img`:
 
-....
+[source,bash]
+----
 mcopy -i disk.img@@offset file ::/
-....
+----
 
 You can get the offset with `fdisk -l disk.img` and multiply `Start`
 with `512`.
 
-....
+[source,bash]
+----
 fdisk -l disk.img | grep 'img1' | awk '{print $3*512}'
-....
+----
 
 ==== Information about dos drive
 
-....
+[source,bash]
+----
 minfo -i disk.img@@offset
-....
+----
 
 === ZFS
 
@@ -68,19 +75,22 @@ Always use something like `/dev/disk/by-id/<ata-MODEL_SERIAL-[part]>`.
 
 ==== Start a scrub
 
-....
+[source,bash]
+----
 zpool scrub <pool>
-....
+----
 
 ==== View status
 
-....
+[source,bash]
+----
 zpool status
-....
+----
 
 ==== Exporting and importing a pool
 
-....
+[source,bash]
+----
 zpool export
 zpool import -a
-....
+----

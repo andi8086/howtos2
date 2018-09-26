@@ -4,7 +4,8 @@
 
 ==== Remove package disregarding dependencies
 
-....
+[source,bash]
+----
 pacman -Rdd <package>
-....
+----
 

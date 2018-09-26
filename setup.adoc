@@ -2,22 +2,25 @@
 
 === Add user to a group
 
-....
-sudo usermod -aG <newgroup> <user>
+[source,bash]
+----
+usermod -aG <newgroup> <user>
 newgrp <newgroup>
-....
+----
 
 Last command adds the new group without the need to logout and back in.
 
 === Prevent PC speaker from beeping
 
-....
-$ sudo rmmod pcspkr
-....
+[source,bash]
+----
+rmmod pcspkr
+----
 
-....
+[source,bash]
+----
 echo "blacklist pcspkr" > /etc/modprobe.d/nobeep.conf
-....
+----
 
 === Console environment
 
@@ -25,20 +28,22 @@ echo "blacklist pcspkr" > /etc/modprobe.d/nobeep.conf
 
 Install `terminus-font`.
 
-....
+[source,bash]
+----
 setfont -v ter-112n
-....
+----
 
 or use another from `/usr/share/kbd/consolefonts/`.
 
 For system default use `/etc/default/console-setup`
 
-....
+[source,bash]
+----
 CHARMAP="UTF-8"
 CODESET="Lat7"
 FONTFACE="Terminus"
 FONTSIZE="28x14"
-....
+----
 
 === E-Mail Setup
 
@@ -46,7 +51,7 @@ FONTSIZE="28x14"
 
 To use `mutt` as `imap` client, set the folder to the address:
 
-```
+----
 set folder="imaps://username@mail.xxx"
 set spoolfile = +INBOX
 set postponed = +INBOX/Sent
@@ -54,17 +59,17 @@ set record = +INBOX/Sent
 unset imap_passive
 set imap_keepalive = 300
 set mail_check = 60
-```
+----
 
 Define the mailboxes manually
 
-```
+----
 mailboxes +INBOX +INBOX/Sent <...>
-```
+----
 
 Define the outgoing mail server
 
-```
+----
 set smtp_url = "smtp://mail.blah.net"
 set realname = "Your Name"
 set from = "YourName@Mail.XXX"
@@ -72,35 +77,36 @@ set hostname = ""
 
 unset ssl_verify_host
 unset ssl_starttls
-```
+----
 
 To add a signature, use
 
-```
+----
 set signature = "~/.mutt/.signature"
-```
+----
 
 To have the newest E-Mail on top, use
 
-```
+----
 set sort_aux = reverse-date-received
-```
+----
 
 For thread view, set
 
-```
+----
 set sort = threads
-```
+----
 
 Have nice colors with
 
-```
+[source,bash]
+----
 source "~/.mutt/colors.muttrc"
-```
+----
 
 with the following content:
 
-```
+----
 # vim: filetype=muttrc
 
 # basic colors ---------------------------------------------------------
@@ -195,10 +201,11 @@ mono  body          bold                            "^gpg: BAD signature from.*"
 
 # yes, an insance URL regex
 color body          red             default         "([a-z][a-z0-9+-]*://(((([a-z0-9_.!~*'();:&=+$,-]|%[0-9a-f][0-9a-f])*@)?((([a-z0-9]([a-z0-9-]*[a-z0-9])?)\\.)*([a-z]([a-z0-9-]*[a-z0-9])?)\\.?|[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+)(:[0-9]+)?)|([a-z0-9_.!~*'()$,;:@&=+-]|%[0-9a-f][0-9a-f])+)(/([a-z0-9_.!~*'():@&=+$,-]|%[0-9a-f][0-9a-f])*(;([a-z0-9_.!~*'():@&=+$,-]|%[0-9a-f][0-9a-f])*)*(/([a-z0-9_.!~*'():@&=+$,-]|%[0-9a-f][0-9a-f])*(;([a-z0-9_.!~*'():@&=+$,-]|%[0-9a-f][0-9a-f])*)*)*)?(\\?([a-z0-9_.!~*'();/?:@&=+$,-]|%[0-9a-f][0-9a-f])*)?(#([a-z0-9_.!~*'();/?:@&=+$,-]|%[0-9a-f][0-9a-f])*)?|(www|ftp)\\.(([a-z0-9]([a-z0-9-]*[a-z0-9])?)\\.)*([a-z]([a-z0-9-]*[a-z0-9])?)\\.?(:[0-9]+)?(/([-a-z0-9_.!~*'():@&=+$,]|%[0-9a-f][0-9a-f])*(;([-a-z0-9_.!~*'():@&=+$,]|%[0-9a-f][0-9a-f])*)*(/([-a-z0-9_.!~*'():@&=+$,]|%[0-9a-f][0-9a-f])*(;([-a-z0-9_.!~*'():@&=+$,]|%[0-9a-f][0-9a-f])*)*)*)?(\\?([-a-z0-9_.!~*'();/?:@&=+$,]|%[0-9a-f][0-9a-f])*)?(#([-a-z0-9_.!~*'();/?:@&=+$,]|%[0-9a-f][0-9a-f])*)?)[^].,:;!)? \t\r\n<>\"]"
-```
+----
 
 Some sidebar addons and key assignments
-```
+
+----
 bind index G imap-fetch-mail
 
 set sidebar_visible = yes
@@ -212,22 +219,23 @@ bind pager <up> previous-line
 bind pager <down> next-line
 
 set sidebar_delim_chars = "/"
-```
+----
 
 === X Environment
 
 Install `Envy Code R` ttf font to `/usr/share/fonts/TTF`. Update font
 cache with
 
-....
+[source,bash]
+----
 fc-cache -f -v
-....
+----
 
 ==== urxvt config
 
 In `.Xresources` add
 
-....
+----
 URxvt.font: xft:Envy Code R:style=regular:size=14
 ! URxvt.font: 9x15
 URxvt*loginShell: true
@@ -243,28 +251,28 @@ URxvt.perl-ext: default,url-select
 URxvt.keysym.M-u: perl:url-select:select_next
 URxvt.url-select.launcher: firefox
 URxvt.url-select.underline: true
-....
+----
 
 Make links clickable with (not with `urxvt-perls`!)
 
-....
+----
 URxvt.perl-ext-common: default,matcher
 URxvt.url-launcher: /usr/bin/xdg-open
 URxvt.matcher.button: 1
-....
+----
 
 Highlight:
 
-....
+----
 URxvt.matcher.rend.0: Uline Bold fg5
-....
+----
 
 Key-Shortcuts for URL list
 
-....
+----
 URxvt.keysym.C-Delete: perl:matcher:last
 URxvt.keysym.M-Delete: perl:matcher:list
-....
+----
 
 Install `urxvt-perls`, which replaces the matcher above for mouse-less
 selection with .
@@ -274,9 +282,10 @@ selection with .
 * Clone and build `plymouth` (https://aur.archlinux.org/plymouth
 * Re-generate initcpio
 
-....
+[source,bash]
+----
 sudo mkinitcpio -k /boot/vmlinuz-linux -c /etc/mkinitcpio.conf -g /boot/initramfs-linux.img -S autodetect
-....
+----
 
 * Install display manager (`lxdm`)
 * Enable `lxdm-plymouth.service`
@@ -285,29 +294,31 @@ Edit
 
 * `/etc/lxdm/PostLogin`
 
-....
+[source,bash]
+----
 source ~/.xinitrc
-....
+----
 
 * `/etc/plymouth/plymouthd.conf`
 
-....
+----
 [Daemon]
 Theme=...
 ShowDelay=5
 DeviceTimeout=5
-....
+----
 
 * `/etc/mkinitcpio.conf`
 
-....
+[source,bash]
+----
 # Load i915 (or other graphics module) before any boot hooks
 MODULES="i915"
 
 ...
 
 HOOKS="base udev plymouth autodetect modconf keyboard keymap block plymouth-encrypt filesystems fsck"
-....
+----
 
 Here, replace `encrypt` with `plymouth-encrypt` and load `plymouth`
 after `udev`.
@@ -318,19 +329,22 @@ From selected theme, edit `ui` files if needed.
 
 === Powerline
 
-....
+[source,bash]
+----
 pacman -S powerline-common  powerline-fonts
-....
+----
 
 or
 
-....
+[source,bash]
+----
 pacaur -S python-powerline-git powerline-fonts-git tmux
-....
+----
 
 `~/.bashrc`:
 
-....
+[source,bash]
+----
 [...]
 if [ -f `which powerline-daemon` ]; then
 powerline-daemon -q
@@ -338,35 +352,36 @@ POWERLINE_BASH_CONTINUATION=1
 POWERLINE_BASH_SELECT=1
 . /usr/lib/python3.5/site-packages/powerline/bindings/bash/powerline.sh
 fi
-....
+----
 
 _NOTE_ Use correct python version.
 
 `~/.tmux.conf`
 
-....
+[source,bash]
+----
 source /usr/lib/python3.5/site-packages/powerline/bindings/tmux/powerline.conf
 set-option -g default-terminal "screen-256color"
-....
+----
 
 `~/.vimrc`
 
-....
+----
 rtp+=$HOME/.local/lib/python3.5/site-packages/powerline/bindings/vim/
 t_Co=256
-....
+----
 
 === Vim
 
 ==== Vim Vundle with some plugins
 
-....
+----
 git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
-....
+----
 
 In your `.vimrc`:
 
-....
+----
 set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin('~/.vundleplugs')
 
@@ -375,32 +390,32 @@ Plugin 'godlygeek/tabular'
 Plugin 'plasticboy/vim-markdown'
 
 call vundle#end()
-....
+----
 
 ==== Highlight extra whitespaces
 
-....
+----
 highlight ExtraWhitespace ctermbg=red guibg=red
 match ExtraWhitespace /\s\+$/
-....
+----
 
 ==== Smart Indentation
 
-....
+----
 set smartindent
-....
+----
 
 ==== F2 for paste mode
 
-....
+----
 nnoremap <F2> :set invpaste paste?<CR>
 set pastetoggle=<F2>
 set showmode
-....
+----
 
 ==== Misc Default settings
 
-....
+----
 set syntax on
 
 set number
@@ -423,15 +438,15 @@ set listchars=tab:→\ ,eol:↲,nbsp:␣,trail:\ ,extends:⟩,precedes:⟨
 set list
 
 set t_Co=256
-....
+----
 
 === vsftpd
 
 in `/etc/vsftpd.conf`, set
 
-....
+----
 seccomp_sandbox=NO
-....
+----
 
 _NOTE_: This is needed due to a bug related to kernels `v4.18+`, which
 prevents working of directory listings.

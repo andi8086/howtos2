@@ -5,9 +5,10 @@
 A bootable EFI system needs an ESP partition. This is easily created
 with `parted`. Just make a FAT32 partition, and use toggle:
 
-....
+[source,bash]
+----
 toggle <partnum> ESP
-....
+----
 
 For different architectures, there exit standard boot file names:
 
@@ -21,9 +22,10 @@ For different architectures, there exit standard boot file names:
 
 To install grub to create a bootable USB stick, just use
 
-....
+[source,bash]
+----
 sudo grub-install --target x86_64-efi --efi-directory=/mnt --boot-directory=/mnt/boot --removable
-....
+----
 
 Here, grub is installed to `/boot/grub`, whereas the EFI file resides in
 `EFI/BOOT/` on the same partition, which is mounted to `/mnt`.
@@ -32,16 +34,18 @@ Now grub has an internal configuration file, that tells it where to load
 the `grub.cfg` from. For USB-Sticks this is too complicated. Just create
 a working `grub.cfg` and include needed modules into `grub`:
 
-....
+[source,bash]
+----
 grub-mkimage -c grub.cfg -O x86_64-efi -p /boot/grub -o bootx64.efi disk part_gpt fat linux normal search search_fs_uuid
-....
+----
 
 Then overwrite the existing `/EFI/BOOT/BOOTX64.EFI` with the just
 generated one.
 
 Here is an example `grub.cfg`:
 
-....
+[source,bash,linenums]
+----
 insmod ext2
 insmod efi_uga
 insmod efi_gop
@@ -51,7 +55,7 @@ search --no-floppy --fs-uuid --set=root <fs-uuid for root>
 linux /boot/vmlinuz-linux root=UUID=<fs-uuid for root> rootwait console=tty0 console=ttyS0,115200 vga=text
 initrd /boot/initramfs-linux.img
 boot
-....
+----
 
 _NOTE_: This does not have a grub menu, it just boots a kernel.
 

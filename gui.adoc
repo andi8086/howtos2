@@ -2,29 +2,33 @@
 
 === Gnome configuration
 
-....
+[source,bash]
+----
 dconf dump /
-....
+----
 
 === Disable auto-mounter
 
 This feature is probably configured by a gsettings schema. You can use
 
-....
+[source,bash]
+----
 gsettings list-schemas
-....
+----
 
 to get an overview.
 
 ==== Disable auto-mounter for mate/caja
 
-....
+[source,bash]
+----
 gsettings set org.mate.media-handling automount false
-....
+----
 
 ==== Disable auto-mounter for gnome
 
-....
+[source,bash]
+----
 gsettings set org.gnome.desktop.media-handling automount false
-....
+----
 

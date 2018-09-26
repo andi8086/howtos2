@@ -7,44 +7,55 @@
 is on `x86` little-endian platforms.
 
 Bytes, no spaces
-....
+
+[source,bash]
+----
 hexdump -ve '/1 "%02X"' <filename>
-....
+----
 
 Bytes, with spaces
-....
+
+[source,bash]
+----
 hexdump -ve '/1 "%02X "' <filename>
-....
+----
 `ABCDEFGH` becomes `41 42 43 44 45 46 47 48`.
 
 Little-Endian words, with spaces
-....
+
+[source,bash]
+----
 hexdump -ve '/2 "%02X "' <filename>
-....
+----
 
 `ABCDEFGH` becomes `4241 4443 4645 4847`
 
 Little-Endian dwords, with spaces
-....
+
+[source,bash]
+----
 hexdump -ve '/4 "%02X "' <filename>
-....
+----
 `ABCDEFGH` becomes `44434241 48474645`.
 
 Little-Endian qwords, with spaces
-....
+
+[source,bash]
+----
 hexdump -ve '/8 "%02X "' <filename>
-....
+----
 `ABCDEFGH` becomes `4847464544434241`.
 
 ==== Using `od`
 
-....
+[source,bash]
+----
 echo "ABCDEFGH" | od -v -t x2 --endian=biga -A n
  4142 4344 4546 4748 0a00
 
 echo "ABCDEFGH" | od -v -t x4 --endian=little -A x
 00000000 44434241 48474645 0000000a
-....
+----
 
 The `-w` parameter specifies how many bytes are displayed per output line.
 

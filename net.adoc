@@ -3,26 +3,30 @@
 === NAT and IP forwarding
 
 Add needed rules to `FORWARD` chain in firewall:
-....
+
+[source,bash]
+----
 iptables -A FORWARD -i eth1 -j ACCEPT
 iptables -A FORWARD -o eth1 -j ACCEPT
-....
+----
 
 Check that `ipv4.ip_foward=1`:
 
 One of both commands:
 
-....
+[source,bash]
+----
 sysctl net.ipv4.ip_forward
 cat /proc/sys/net/ipv4/ip_forward
-....
+----
 
 Enable with one of both commands:
 
-....
+[source,bash]
+----
 sysctl -w net.ipv4.ip_forward=1
 echo 1 > /proc/sys/net/ipv4/ip_forward
-....
+----
 
 === Monitor `traffic`
 
@@ -33,14 +37,18 @@ Following programs are useful: `iptraf-ng`, `wireshark`.
 ==== bridge with NAT and DHCP server
 
 `/etc/systemd/network/bridge.netdev`:
-....
+
+[source,systemd]
+----
 [NetDev]
 Name=br0
 Kind=bridge
-....
+----
 
 `/etc/systemd/network/bridge.network`:
-....
+
+[source,systemd]
+----
 [Match]
 Name=br0
 
@@ -49,48 +57,58 @@ Address=10.0.0.88/24
 IPForward=yes
 IPMasquerade=yes
 DHCPServer=yes
-....
+----
 
 ===== Auto-add tap devices to bridge
 
 `/etc/systemd/network/tap-br.network`:
-....
+
+[source,systemd]
+----
 [Match]
 name=tap*
 
 [Network]
 Bridge=br0
-....
+----
 
 ==== Auto DHCP with LAN network
 
 `/etc/systemd/network/something.network`:
-....
+
+[source,systemd]
+----
 [Match]
 Name=enp0s25
 
 [Network]
 DHCP=ipv4
-....
+----
 
 === `netcat`
 
 ==== Send a file from a client to a server
 
 On the server, listen to a port, for example `udp` port `4172`
-....
+
+[source,bash]
+----
 nc -l -u -p 4172 > <filename>
-....
+----
 
 On the client, send with
-....
+
+[source,bash]
+----
 cat <filename> | nc -u <ip-of-server> 4172
-....
+----
 
 ==== One shot file server
 
 Serve file for first HTTP request
-....
- { printf 'HTTP/1.0 200 OK\r\nContent-Length: %d\r\n\r\n' "$(wc -c < some.file)"; cat some.file; } | nc -l 8080
-....
+
+[source,bash]
+----
+{ printf 'HTTP/1.0 200 OK\r\nContent-Length: %d\r\n\r\n' "$(wc -c < some.file)"; cat some.file; } | nc -l 8080
+----
 

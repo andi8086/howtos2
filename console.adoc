@@ -4,9 +4,10 @@
 
 If a tool cannot open a pseudo terminal, use
 
-....
+[source,bash]
+----
 screen /dev/null
-....
+----
 
 _NOTE_: It is not good to alter the file access rights for the dev node
 since this would allow access to your terminal.
@@ -17,29 +18,33 @@ since this would allow access to your terminal.
 variable, line breaks are still there.
 If they are output with
 
-```
+[source,bash]
+----
 echo $VARIABLE
-```
+----
 
 line breaks become spaces. If the internal field separator "IFS" is set to `" "`, line breaks are preserved.
 
-```
+[source,bash]
+----
 IFSOLD=$IFS
 IFS=" "
 echo $VARIABLE
 IFS=$IFSOLD
-```
+----
 
 However, line breaks are also kept when the variable is enclosed with double-ticks.
 
-```
+[source,bash]
+----
 echo "$VARIABLE"
-```
+----
 
 The reason is that without double-ticks, `bash` does not interpret it as a string, so `echo` gets several arguments and prints them separated with spaces. The argument separation is done by `bash`. Another example is to set
 `IFS=a`. In this case, if you assign the variable `A=bbbaccc` and use `echo` to print it, you get a space instead of `a`, since `a` is used as field separator. The same works for `for`:
 
-```
+[source,bash]
+----
 IFSBACK=$IFS
 IFS=a
 A=bbbaccc
@@ -48,6 +53,6 @@ do
 	echo $i
 done
 IFS=$IFSBACK
-```
+----
 
 Here `a` effectively becomes a newline.

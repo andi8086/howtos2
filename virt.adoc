@@ -8,24 +8,27 @@ Add user to `docker` group.
 
 ==== Mount into container
 
-....
+[source,bash]
+----
 docker run -v /path/on/host:/path/in/container
-....
+----
 
 _NOTE_: Relative paths are not allowed.
 
 ==== Verify environment
 
-....
+[source,bash]
+----
 sudo systemctl show --property Environment docker
-....
+----
 
 ==== Proxy configuration for docker
 
 Both docker daemon and container need a proxy configuration. Easiest way
 is to use a `.docker/config.json`:
 
-....
+[source,json]
+----
 {
 "proxies": {
         "default": {
@@ -35,32 +38,36 @@ is to use a `.docker/config.json`:
         }
     }
 }
-....
+----
 
 Other ways are
 
 `/etc/systemd/system/docker.service.d/http-proxy.conf`:
 
-....
+[source,systemd]
+----
 [Service]
 Environment="HTTP_PROXY=http://ip:port"
 Environment="HTTPS_PROXY=http://ip:port"
 Environment="FTP_PROXY=..."
 Environment=NO_PROXY=..."
-....
+----
 
 and command-line parameters
 
-....
+[source,bash]
+----
 docker run -e "http_proxy=..." -e "https_proxy=..." ...
-....
+----
 
 === runc
 
 ==== systemd files to start container
 
 Service file `<containername>.service`:
-....
+
+[source,systemd]
+----
 [Service]
 Type=simple
 WorkingDirectory=/opt/runc/<containername>
@@ -71,15 +78,17 @@ PIDFile=/run/runc_<containername>.pid
 
 [Install]
 WantedBy=multi-user.target
-....
+----
 
 Target file `<containername>.target` (optional):
-....
+
+[source,systemd]
+----
 [Unit]
 Description=Blurb blurb
 Requires=<containername>.service
 
 [Install]
 WantedBy=multi-user.target
-....
+----
 
