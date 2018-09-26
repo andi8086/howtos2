@@ -49,6 +49,8 @@ Use
 git commit --amend --reset-author
 ----
 
+include::makefile.adoc[]
+
 === C/C++
 
 ==== Order of object files in static library

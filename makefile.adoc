@@ -1,0 +1,48 @@
+=== Makefiles
+
+==== Targets
+
+[source,makefile]
+----
+<targetname>: <prerequisites>
+[TAB]	command
+----
+
+Within `command`, use
+
+* `$^` all prerequisites (mnemonic: all under the roof)
+* `$@` targetname (mnemonic: at - target)
+* `$<` first prerequisite (mnemonic: smallest, first)
+
+==== Macros
+
+`$(shell command)` executes `command` in a shell and returns the result.
+
+Example:
+
+[source,makefile]
+----
+SRC_DIRS := $(shell find Src/ -maxdepth 4 -type d)
+----
+
+`$(notdir filepath)` returns the part of the path which is only the filename.
+
+`$(patsubst A, B, list)` substitues A with B in list.
+
+Example:
+
+[source,makefile]
+----
+OBJs := $(patsubst %.c, %.o, $(notdir $(shell find . -name "*.c")))
+----
+
+`$(addprefix prefix, list)` adds a prefix to all list items.
+
+Example:
+
+[source,makefile]
+----
+OBJ_FILES := $(addprefix build/, $(OBJs))
+----
+
+`.PHONY: clean` defines a phony target named clean. A phony target is a target that does not create a file.

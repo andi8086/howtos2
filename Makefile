@@ -23,5 +23,5 @@ DOCFILES := tips.adoc \
 tips.pdf: $(DOCFILES)
 	BUNDLE_PATH=./gems bundle exec asciidoctor-pdf tips.adoc
 
-tips.html: tips.adoc
+tips.html: $(DOCFILES)
 	asciidoctor -b html tips.adoc
