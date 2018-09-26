@@ -1,0 +1,14 @@
+download bundle from
+
+https://highlightjs.org/download/
+
+
+and copy into ./highlight folder.
+
+Then rename
+
+highlight.pack.js to highlight.min.js
+
+and
+
+styles/highlight.github.css styles/highlight.min.css

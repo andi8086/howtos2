@@ -1,5 +1,11 @@
 = Linux Tips and Tricks
+ifeval::["{backend}"=="pdf"]
 :source-highlighter: rouge
+endif::[]
+ifeval::["{backend}"=="html5"]
+:highlightjsdir: highlight
+:source-highlighter: highlightjs
+endif::[]
 :numbered:
 :doctype: book
 :sectnums:
