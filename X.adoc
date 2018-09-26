@@ -41,3 +41,66 @@ setxkbmap -rules xorg -model logicordless -layout "us,cz,de" \
           -option "grp:alt_shift_toggle"
 ....
 
+=== Snow on windows
+
+Start `xsnow`.
+
+=== Optimus chipsets and switching GPU
+
+`bumblebee` is deprecated, do not use it.
+Host CPU is Intel with integrated GPU, dedicated card is `nouveau`.
+
+Install `nouveau` driver for NVidia cards. Have sections in `xorg.conf` for devices, screens and displays.
+
+....
+Section "Device"
+	Identifier "intel"
+	Driver	"intel"
+	VendorName "Intel Corporation"
+	BusID "PCI:0:2:0"
+EndSection
+
+Section "Device"
+	Identifier "nouveau"
+	Driver	"nouveau"
+	VendorName "NVIDIA Corporation"
+	BusID "PCI:3:0:0"
+EndSection
+....
+Retrieve the needed bus numbers with `lspci`. For example `00:02.0` becomes `PCI:0:2:0`.
+
+For my Dell laptop:
+....
+Section "Monitor"
+	Identifier "Monitor0"
+	VendorName "Unknown"
+	ModelName "Unknown"
+	Option "DPMS"
+	Modeline "1920x1080_60.00" 173.00 1920 2048 2248 2576 1080 1083 1088 1120 -hsync +vsync
+	Option "PreferredMode" "1920x1080_60.00"
+EndSection
+....
+
+....
+Section "Screen"
+	Identifier "intel"
+	Device "intel"
+	Monitor "Monitor0"
+	DefaultDepth 24
+	SubSection "Display"
+		Depth 24
+		Modes "1920x1080_60.00"
+	EndSubSection
+EndSection
+....
+
+Now prefix any application with `DRI_PRIME=0` or `DRI_PRIME=1` to run it on one of the GPUs.
+
+*Example*:
+....
+DRI_PRIME=1 glxinfo | grep "OpenGL renderer"
+OpenGL renderer string: NV118
+
+DRI_PRIME=0 glxinfo | grep "OpenGL renderer"
+OpenGL renderer string: Mesa DRI Intel(R) HD Graphics 5500 (Broadwell GT2)
+....

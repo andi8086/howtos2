@@ -55,3 +55,32 @@ fdisk -l disk.img | grep 'img1' | awk '{print $3*512}'
 minfo -i disk.img@@offset
 ....
 
+=== ZFS
+
+Install from `https://github.com/zfsonlinux/`. Use master branch for `encryption` feature.
+
+==== Creating a pool
+
+Never use dev nodes to create the pool as dev nodes depend on the physical bus structure, which
+can change if controllers or some other hardware change.
+
+Always use something like `/dev/disk/by-id/<ata-MODEL_SERIAL-[part]>`.
+
+==== Start a scrub
+
+....
+zpool scrub <pool>
+....
+
+==== View status
+
+....
+zpool status
+....
+
+==== Exporting and importing a pool
+
+....
+zpool export
+zpool import -a
+....
