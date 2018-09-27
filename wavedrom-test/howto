@@ -1,0 +1,5 @@
+build wavedrom-editor from aur
+modify PKGBUILD to create symlink from wavedrom-editor to WaveDromEditor
+install
+
+BUNDLE_PATH=../gems bundle exec asciidoctor-pdf -r asciidoctor-diagram wd.adoc
