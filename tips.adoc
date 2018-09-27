@@ -14,6 +14,16 @@ endif::[]
 :toc:
 Andreas Reichel
 
+
+[preface]
+== Documentation Preface
+
+In this document I assembled a lot of information I gathered during my work of the last three years. As Linux distribution I chose Arch Linux so that a lot of commands are specific to Arch but should easily be adaptable to other distributions.
+
+=== Acknowledgments
+
+I would like to thank Dr. rer. nat. Christian Storm, Claudius Heine and Daniel Wagner for useful tipps and interesting discussions and insights.
+
 include::boot.adoc[]
 
 include::kernel.adoc[]

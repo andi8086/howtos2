@@ -2,6 +2,10 @@
 
 Config snippets reside in `/etc/X11/xorg.conf.d/`, for example `10-keyboard.conf`.
 
+=== Enable external monitor or change resolution
+
+Use `arandr`.
+
 === Cannot connect to server
 
 Try `xhost +` to allow connections from everyone.
