@@ -9,3 +9,13 @@
 pacman -Rdd <package>
 ----
 
+=== gitlab
+
+After upgrading `gitlab`, migrate the database:
+
+[source,bash]
+----
+su - gitlab -s /bin/sh -c "cd '/usr/share/webapps/gitlab'; bundle-2.3 exec rake db:migrate RAILS_ENV=production"
+systemctl daemon-reload
+systemctl restart gitlab-sidekiq gitlab-unicorn gitlab-workhorse gitlab-gitaly
+----

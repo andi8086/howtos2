@@ -1,0 +1,223 @@
+=== Gitlab
+
+==== Prepare a `systemd-nspawn` container:
+
+[source,bash]
+----
+mkdir gitlab-container
+pacstrap -d gitlab-container base
+----
+
+==== Enter the container:
+
+[source,bash]
+----
+systemd-nspawn -b -D gitlab-container -n
+----
+
+==== Enable networking services
+[source,bash]
+----
+systemctl enable systemd-networkd systemd-resolved
+systemctl start systemd-networkd systemd-resolved
+----
+
+==== Install mariadb
+
+[source,bash]
+----
+pacman -S mariadb
+mysql_install_db --user=mysql --basedir=/usr --datadir=/var/lib/mysql
+systemctl start mariadb
+systemctl enable mariadb
+mysqladmin -u root password
+mysqladmin -u root -h gitlab-container password
+----
+
+==== Configure mariadb
+
+_NOTE_: This also fixes an error, that keys longer than 767 bytes are not possible.
+
+[source,bash]
+----
+mysql -u root -p
+SET GLOBAL innodb_default_row_format=DYNAMIC;
+SET GLOBAL innodb_large_prefix=on;
+CREATE DATABASE `gitlabhq_production` DEFAULT CHARACTER SET `utf8` COLLATE `utf8_unicode_ci`;
+CREATE USER 'gitlab'@'localhost' IDENTIFIED BY 'password';
+GRANT ALL ON `gitlabhq_production`.* TO 'gitlab'@'localhost';
+----
+
+Test with
+
+[source,bash]
+----
+mysql -u gitlab -p -D gitlabhq_production
+----
+
+
+==== Install gitlab and dependencies
+
+[source,bash]
+----
+pacman -S gitlab
+pacman -S ruby npm ruby-bundler nginx
+----
+
+==== Edit `/etc/webapps/gitlab/gitlab.yml`
+
+Set `host` to `gitlab-container`
+
+==== Configure static assets
+
+Edit `/usr/share/webapps/gitlab/config/environments/production.rb`:
+
+Change the corresponding lines:
+
+----
+config.public_file_server.enabled = true
+config.server_static_files = true
+----
+
+==== Generate hex secret files
+
+[source,bash]
+----
+hexdump -v -n 64 -e '1/1 "%02x"' /dev/urandom > /etc/webapps/gitlab/secret
+chown root:gitlab /etc/webapps/gitlab/secret
+chmod 640 /etc/webapps/gitlab/secret
+
+hexdump -v -n 64 -e '1/1 "%02x"' /dev/urandom > /etc/webapps/gitlab-shell/secret
+chown root:gitlab /etc/webapps/gitlab-shell/secret
+chmod 640 /etc/webapps/gitlab-shell/secret
+----
+
+==== Configure redis
+
+[source,bash]
+----
+usermod -aG redis gitlab
+----
+
+In `/etc/redis.conf`, change listening to
+
+----
+unixsocket /run/redis/redis.sock
+unixsocketperm 775
+----
+
+In `/etc/webapps/gitlab/resque.yml`, set socket communication:
+
+----
+development:
+  url: unix:/run/redis/redis.sock
+test:
+  url: unix:/run/redis/redis.sock
+production:
+  url: unix/run/redis/redis.sock
+----
+
+In `/etc/webapps/gitlab-shell/config.yml` add the following:
+
+----
+# Redis settings used for pushing commit notices to gitlab
+redis:
+  bin: /usr/bin/redis-cli
+  host: 127.0.0.1
+  port: 6379
+  # pass: redispass # Allows you to specify the password for Redis
+  database: 5 # Use different database, default up to 16
+  socket: /run/redis/redis.sock # uncomment this line
+  namespace: resque:gitlab
+----
+
+==== Enable and start the server:
+
+[source,bash]
+----
+systemctl enable redis
+systemctl start redis
+----
+
+==== Configure gitlab for mariadb
+
+Create `/etc/webapps/gitlab/database.yml`:
+
+----
+#
+# PRODUCTION
+#
+production:
+  adapter: mysql2
+  encoding: utf8
+  collation: utf8_general_ci
+  reconnect: false
+  database: gitlabhq_production
+  pool: 10
+  username: gitlab
+  password: "password"
+  # host: localhost
+  # socket: /run/mysqld/mysqld.sock # If running MariaDB as socket
+----
+
+[source,bash]
+----
+chmod 600 /etc/webapps/gitlab/database.yml
+chown gitlab:gitlab /etc/webapps/gitlab/database.yml
+----
+
+==== Start gitaly and init databases
+
+[source,bash]
+----
+systemctl start gitlab-gitaly
+su - gitlab -s /bin/sh -c "cd '/usr/share/webapps/gitlab'; bundle-2.3 exec rake gitlab:setup RAILS_ENV=production"
+----
+
+==== Start all services and check
+
+[source,bash]
+----
+systemctl start gitlab-sidekiq gitlab-unicorn gitlab-workhorse
+systemctl enable gitlab.target
+
+su - gitlab -s /bin/sh -c "cd '/usr/share/webapps/gitlab'; bundle-2.3 exec rake gitlab:check RAILS_ENV=production"
+
+su - gitlab -s /bin/sh -c "cd '/usr/share/webapps/gitlab'; bundle-2.3 exec rake gitlab:env:info RAILS_ENV=production"
+----
+
+==== Configure nginx
+
+Use nginx as proxy for incoming connections to port :80 to localhost:8080
+
+`/etc/nginx/nginx.conf`
+
+----
+location / {
+        proxy_pass http://localhost:8080;
+}
+----
+
+[source,bash]
+----
+systemctl start nginx
+systemctl enable nginx
+----
+
+==== Configure sshd
+
+`/etc/ssh/sshd_config`
+
+----
+PubkeyAuthenticataion yes
+AuthorizedKeysFile %h/.ssh/authorized_keys
+AllowUsers gitlab
+----
+
+[source,bash]
+----
+systemctl enable sshd
+systemctl start sshd
+----
+
+

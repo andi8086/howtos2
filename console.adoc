@@ -56,3 +56,10 @@ IFS=$IFSBACK
 ----
 
 Here `a` effectively becomes a newline.
+
+=== Separate filename with extension from path
+
+[source,bash]
+----
+bash -c TEST="/usr/share/zoneinfo/zone.tab"; echo "${TEST##*/}"
+----

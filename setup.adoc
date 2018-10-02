@@ -279,4 +279,4 @@ seccomp_sandbox=NO
 _NOTE_: This is needed due to a bug related to kernels `v4.18+`, which
 prevents working of directory listings.
 
-
+include::gitlab.adoc[]

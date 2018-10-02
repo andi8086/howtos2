@@ -1,0 +1,9 @@
+=== overlayfs
+
+To prevent the system from hanging, use the following in `/etc/fstab`:
+
+----
+overlay /merged overlay noauto,x-systemd.automount,lowerdir=/lower,upperdir=/upper,workdir=/work 0 0
+----
+
+_NOTE_: The `workdir` and the `upperdir` must be on the same filesystem.
