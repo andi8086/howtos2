@@ -209,7 +209,7 @@ systemctl enable nginx
 `/etc/ssh/sshd_config`
 
 ----
-PubkeyAuthenticataion yes
+PubkeyAuthentication yes
 AuthorizedKeysFile %h/.ssh/authorized_keys
 AllowUsers gitlab
 ----
