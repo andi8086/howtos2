@@ -1,5 +1,25 @@
 == Virtualization
 
+=== systemd-nspawn
+
+==== unit to spawn container
+
+Enable machines.target
+
+[source,bash]
+----
+systemctl enable machines.target
+----
+
+Create service
+
+[source,bash]
+----
+systemctl enable systemd-nspawn@myContainer.service
+----
+
+Customize startup with `/etc/systemd/nspawn/myContainer.nspawn`.
+
 === Docker
 
 ==== Not allowed to talk to docker daemon
