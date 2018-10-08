@@ -20,6 +20,26 @@ systemctl enable systemd-nspawn@myContainer.service
 
 Customize startup with `/etc/systemd/nspawn/myContainer.nspawn`.
 
+_NOTE_: Per default, user namespace is activated and `GID`s and `UID`s of
+all files in the container get changed on first startup to a random value.
+This messes with the file system. If you do not want this, use the following within the nspawn file:
+
+----
+[Exec]
+PrivateUser=no
+----
+
+For the sake of explicitness, I use
+
+----
+[Exec]
+Boot=yes
+PrivateUsers=no
+
+[Network]
+VirtualEthernet=yes
+----
+
 === Docker
 
 ==== Not allowed to talk to docker daemon

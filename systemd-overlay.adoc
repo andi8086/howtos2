@@ -7,3 +7,41 @@ overlay /merged overlay noauto,x-systemd.automount,lowerdir=/lower,upperdir=/upp
 ----
 
 _NOTE_: The `workdir` and the `upperdir` must be on the same filesystem.
+
+==== overlay /etc
+
+Overlaying `/etc` needs some different approach. All system programs read their configuration from there, i.e. those spawned by `systemd-networkd`. However, this service is not garanteed to start after the filesystem mounts in `fstab`. Systemd uses a generator to produce `.mount` unit files from `fstab` entries which you can see in `/run/systemd/generator/`.
+
+You can use these files as template and create fix `.mount` unit files in `/etc/systemd/system`. For example, if you want to mount `/etc` before `systemd-networkd`, use
+
+`/etc/systemd/system/ovl.mount`:
+
+----
+[Unit]
+Before=etc.mount
+After=systemd-fsck@dev-disk-by\x2dpartlabel-etcovl.service
+
+[Mount]
+What=/dev/disk/by-partlabel/etcovl
+Where=/ovl
+Type=ext4
+----
+
+`/etc/systemd/system/etc.mount`:
+
+----
+[Unit]
+Before=network-pre.target
+After=ovl.mount
+Requires=ovl.mount
+Wants=network-pre.target
+
+[Mount]
+What=overlay
+Where=/etc
+Type=overlay
+Options=noauto,x-systemd.automount,lowerdir=/etc,upperdir=/ovl/etc,workdir=/ovl/.atomic
+
+[Install]
+WantedBy=local-fs-pre.target
+----
