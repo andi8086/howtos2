@@ -114,7 +114,7 @@ development:
 test:
   url: unix:/run/redis/redis.sock
 production:
-  url: unix/run/redis/redis.sock
+  url: unix:/run/redis/redis.sock
 ----
 
 In `/etc/webapps/gitlab-shell/config.yml` add the following:
