@@ -1,0 +1,41 @@
+==== Remove package disregarding dependencies
+
+[source,bash]
+----
+pacman -Rdd <package>
+----
+
+==== Creating user packages
+
+===== Sources with autoconf bundled with PKGBUILD
+
+Create a PKGBUILD file with the following template
+
+[source]
+----
+pkgname='blabla'
+pkgver=0815
+pkgrel=1
+pkgdesc='This is a blabla package'
+arch=('x86_64')
+license=('GPLv2')
+source=()
+
+prepare() {
+	ln -snf "$startdir" "$srcdir/$pkgname"
+}
+
+build() {
+	cd "$pkgname"
+	./configure --prefix=""
+	make
+}
+
+package() {
+	cd "$pkgname"
+	make DESTDIR="$pkgdir/usr" install
+}
+----
+
+_NOTE_: It does not work to use `--prefix` instead of `DESTDIR`.
+This leads to `filesystem already contains...`.
