@@ -21,6 +21,39 @@ If you don’t want that `/path/to/dir` itself is also removed, use
 find /path/to/dir -type f -delete
 ----
 
+=== ext file system
+
+==== disable the journal
+
+To disable the journal on ext file systems due to reducing wear leveling
+on USB flash drives, use
+
+[source,bash]
+----
+tune2fs -O ^has_journal /dev/<device>
+e2fsck -f /dev/<device>
+----
+
+Check with
+
+[source,bash]
+----
+dumpe2fs /dev/<device> | grep journal
+----
+
+_Note_: Disabling the journal leads to data loss on dirty fs removal or power loss.
+
+==== increase ext4 performance
+
+add `defaults,data=writeback,noatime,nodiratime` to fstab entry.
+
+For working with `writeback`, also enable mount option
+
+[source,bash]
+----
+tune2fs -o journal_data_writeback /dev/<device>
+----
+
 === Handling multi-partition disk images
 
 ==== kpartx

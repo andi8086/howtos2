@@ -1,5 +1,16 @@
 == Virtualization
 
+=== qemu
+
+==== Test an UEFI bootable memory stick with qemu
+
+[source,bash]
+----
+qemu-system-x86_64 --bios /usr/share/ovmf/x64/OVMF_CODE.fd -m 4G -usb -device nec-usb-xhci -usb -device usb-host,vendorid=0x0951,productid=0x1666
+----
+
+This forwards the USB device with specified product and vendor ID to qemu, where the firmware tries to boot from it.
+
 === systemd-nspawn
 
 ==== unit to spawn container
