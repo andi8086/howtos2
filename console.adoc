@@ -1,5 +1,20 @@
 == Console
 
+=== Automatic login to tty1
+
+[source,bash]
+----
+sudo systemctl edit getty@tty1
+----
+
+Then paste the following
+
+----
+[Service]
+ExecStart=
+ExecStart=-/usr/bin/agetty --autologin <username> --noclear %I $TERM
+----
+
 === No access to pty for tool
 
 If a tool cannot open a pseudo terminal, use
