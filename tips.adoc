@@ -13,7 +13,7 @@ endif::[]
 :sectnumlevels: 5
 :toc:
 Andreas Reichel
-2015-2018
+2015-2019
 
 [preface]
 == Documentation Preface
