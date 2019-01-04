@@ -48,6 +48,91 @@ For thread view, set
 set sort = threads
 ----
 
+===== Use offlineimap and msmtp
+
+Install `offlineimap` and `msmtp` and edit `~/.offlineimaprc`:
+
+----
+[general]
+accounts = BLABLA 
+maxsyncaccounts = 1
+pythonfile = ~/.scripts/offlineimap.py
+
+[Account BLABLA]
+localrepository = BLABLA-local
+remoterepository = BLABLA-remote
+autorefresh = 5
+quick = 10
+
+[Repository BLABLA-local]
+type = Maildir
+localfolders = ~/.mail
+
+[Repository BLABLA-remote]
+type = IMAP
+remotehost = mail.xyz.server
+remoteuser = user@xzy.server
+remoteport = 993
+remotepasseval = get_pass('offlineimap', 'BLABLA')
+ssl=yes
+sslcacertfile = /etc/ssl/certs/ca-certificates.crt
+readonly=true
+keepalive=60
+holdconnectionopen=yes
+----
+
+For this to work, you need a script in `~/.scripts/offlineimap.py`:
+
+[source,python]
+----
+#!/usr/bin/env python2
+import subprocess
+
+def the_pass(proc, account):
+	return subprocess.check_output(["pass", "show", "work/email"]).strip()
+
+def get_pass(proc, account):
+	return the_pass(proc, account)
+
+def print_pass(proc, account):
+	print the_pass(proc, account)
+----
+
+Then there must be an entry in `pass` with `pass insert work/email`.
+
+Furthermore, `must` must be reconfigured to work with offlineimap:
+
+----
+set folder= ~/.mail
+set spoolfile="+INBOX"
+set record="+Sent"
+set sendmail = "/usr/bin/msmtp"
+----
+
+This will also use `msmtp` to send emails instead of the built-in one.
+
+To configure `msmtp` set `.msmtprc`:
+
+----
+defaults
+auth on
+tls on
+tls_trust_file /etc/ssl/certs/ca-certificates.crt
+logfile ~/.msmtp.log
+
+# email-account
+account	BLABLA
+host	smtp.xyz.server
+port 25
+from	me@xyz.server
+user	me@xyz.server
+passwordeval python2 -c 'import subprocess; print subprocess.check_output(["pass", "show", "work/email"]).strip()'
+
+account default: BLABLA
+----
+
+===== Theme and colors
+
 Have nice colors with
 
 [source,bash]
@@ -189,3 +274,4 @@ To do this automatically, enable auto-viewer in `muttrc` file:
 ----
 auto_view text/html
 ----
+
