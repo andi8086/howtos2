@@ -22,7 +22,8 @@ DOCFILES := tips.adoc \
 		net.adoc \
 		kernel.adoc \
 		systemd-overlay.adoc \
-		pacman.adoc
+		pacman.adoc \
+		specific.adoc
 
 tips.pdf: $(DOCFILES)
 	BUNDLE_PATH=./gems bundle exec asciidoctor-pdf tips.adoc

@@ -12,6 +12,7 @@ endif::[]
 :toclevels: 5
 :sectnumlevels: 5
 :toc:
+:title-logo-image: image::pba.png[width=300,align=center]
 Andreas Reichel
 2015-2019
 
@@ -22,7 +23,7 @@ In this document I assembled a lot of information I gathered during my work of t
 
 === Acknowledgments
 
-I would like to thank Dr. rer. nat. Christian Storm, Claudius Heine and Daniel Wagner for useful tipps and interesting discussions and insights.
+I would like to thank Dr. rer. nat. Christian Storm, Claudius Heine and Daniel Wagner for useful tips and interesting discussions and insights.
 
 include::boot.adoc[]
 
@@ -52,3 +53,4 @@ include::devel.adoc[]
 
 include::virt.adoc[]
 
+include::specific.adoc[]

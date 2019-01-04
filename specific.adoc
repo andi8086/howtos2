@@ -1,0 +1,10 @@
+== Computer Specific Tweaks
+
+=== MSI GE63 Raider RGB 8RF
+
+Kernel needs ACPI overrides as boot parameter:
+
+[source,bash]
+----
+acpi_osi=! acpi_osi="Windows 2009"
+---- 
