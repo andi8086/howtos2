@@ -25,7 +25,6 @@ for_window [class="URxvt" instance="mutt"] floating enable resize set 1600 1024
 for_window [class="URxvt" instance="mutt"] move position 160 32
 ----
 
-
 ==== background image
 
 Use `nitrogen` to display a wallpaper.
@@ -38,3 +37,218 @@ exec --no-startup-id nitrogen --restore
 
 To configure it, just start `nitrogen`.
 
+==== i3 blocks status bar
+
+[source,bash]
+----
+# install
+pacman -S i3blocks
+# create user config
+cp /etc/i3blocks.conf ~/.config/i3blocks/config
+
+# create user dir for scripts
+mkdir ~/.i3blocks
+cp /usr/lib/i3blocks/* ~/.i3blocks
+----
+
+Change i3 config to use i3blocks:
+
+----
+bar {
+#   status_command i3status
+    status_command i3blocks
+}
+----
+
+
+`~/.config/i3blocks/config`:
+
+----
+command=~/.i3blocks/$BLOCK_NAME
+separator_block_width=15
+markup=none
+
+[volume]
+label=♪
+instance=Master
+interval=once
+signal=10
+
+[memory]
+label=M
+separator=false
+interval=30
+
+[disk]
+label=H
+#instance=/mnt/data
+interval=30
+separator=false
+
+[disk]
+label=S
+instance=/
+interval=30
+
+# Network interface monitoring
+[iface]
+instance=wlo1
+color=$00FF00
+interval=10
+separator=false
+
+[wifi]
+instance=wlo1
+interval=10
+separator=true
+
+[iface]
+instance=enp3s0
+color=#00FF00
+interval=10
+separator=false
+
+[bandwidth]
+instance=enp3s0
+interval=5
+
+[cpu_usage]
+label=CPU
+interval=10
+min_width=CPU: 100.00%
+
+# Battery indicator
+[battery]
+label=⚡
+interval=30
+
+# Date Time
+[time]
+command=date '+%Y-%m-%d %H:%M:%S'
+interval=1
+
+[cpu-temp]
+label=CPU
+interval=2
+
+[nvidia-temp]
+label=GPU
+interval=2
+----
+
+<<<
+`~/.i3blocks/cpu-temp`:
+
+[source,bash]
+----
+#!/bin/bash
+temp=$(
+    sensors 'coretemp-*' \
+        | grep '^Package id' \
+        | awk '{ print $4 }' \
+        | grep -o '[0-9]\+' \
+        | head -n1
+)
+
+printf '%s\u2009°C\n' $temp
+
+if [[ "$temp" -lt 50 ]]; then
+    printf '\n#00FF00'
+elif [[ "$temp" -lt 60 ]]; then
+    printf '\n#55FF00'
+elif [[ "$temp" -lt 70 ]]; then
+    printf '\n#FFFF00'
+elif [[ "$temp" -lt 80 ]]; then
+    printf '\n#FF5500'
+else
+    printf '\n#FF0000'
+fi
+----
+
+<<<
+`~/.i3blocks/nvidia-temp`:
+
+[source,bash]
+----
+#!/bin/bash
+temp=$(
+    sensors 'nouveau-*' \
+        | grep '^temp1' \
+        | awk '{ print $2 }' \
+        | grep -o '[0-9]\+' \
+        | head -n1
+)
+
+if [[ "$temp" -gt 500 ]]; then
+    printf "na"
+    exit 0
+fi 
+
+printf '%s\u2009°C\n' $temp
+
+if [[ "$temp" -lt 50 ]]; then
+    printf '\n#00FF00'
+elif [[ "$temp" -lt 60 ]]; then
+    printf '\n#55FF00'
+elif [[ "$temp" -lt 70 ]]; then
+    printf '\n#FFFF00'
+elif [[ "$temp" -lt 80 ]]; then
+    printf '\n#FF5500'
+else
+    printf '\n#FF0000'
+fi
+----
+
+<<<
+`~/.i3blocks/wifi`:
+
+[source,bash]
+----
+#!/bin/bash
+# Copyright (C) 2014 Alexander Keller <github@nycroth.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#------------------------------------------------------------------------
+
+INTERFACE="${BLOCK_INSTANCE:-wlan0}"
+
+#------------------------------------------------------------------------
+
+# As per #36 -- It is transparent: e.g. if the machine has no battery or wireless
+# connection (think desktop), the corresponding block should not be displayed.
+[[ ! -d /sys/class/net/${INTERFACE}/wireless ]] ||
+    [[ "$(cat /sys/class/net/$INTERFACE/operstate)" = 'down' ]] && exit
+
+#------------------------------------------------------------------------
+
+QUALITY=$(grep $INTERFACE /proc/net/wireless | awk '{ print int($3 * 100 / 70) }')
+
+#------------------------------------------------------------------------
+WNAME=$(netctl list | grep '*' | cut -d- -f2)
+
+echo "$QUALITY% $WNAME" # full text
+echo "$QUALITY% $WNAME" # short text
+
+# color
+if [[ $QUALITY -ge 80 ]]; then
+    echo "#00FF00"
+elif [[ $QUALITY -lt 80 ]]; then
+    echo "#FFF600"
+elif [[ $QUALITY -lt 60 ]]; then
+    echo "#FFAE00"
+elif [[ $QUALITY -lt 40 ]]; then
+    echo "#FF0000"
+fi
+----
