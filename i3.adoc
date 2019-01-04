@@ -1,0 +1,40 @@
+=== i3 window manager
+
+[source,bash]
+----
+pacman -S i3 dmenu
+----
+
+The configuration file is `~/.config/i3/config`.
+
+==== start mail client `mutt` with `mod4+q`
+
+Config snippet:
+
+----
+bindsym $mod+q exec urxvt -name mutt -e mutt
+----
+
+This also sets the instance string of the created X window to `mutt`. This can be used to give special properties to the window, i.e. make it floating and center with with a given size:
+
+
+Config snippet:
+
+----
+for_window [class="URxvt" instance="mutt"] floating enable resize set 1600 1024
+for_window [class="URxvt" instance="mutt"] move position 160 32
+----
+
+
+==== background image
+
+Use `nitrogen` to display a wallpaper.
+
+Config snippet:
+
+----
+exec --no-startup-id nitrogen --restore
+----
+
+To configure it, just start `nitrogen`.
+

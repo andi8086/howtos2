@@ -59,6 +59,23 @@ setxkbmap -rules xorg -model logicordless -layout "us,cz,de" \
           -option "grp:alt_shift_toggle"
 ----
 
+=== Tap to click on touch pads
+
+XOrg config snippet:
+
+----
+Section "InputClass"
+	Identifier	"libinput touchpad catchall"
+	MatchIsTouchpad "on"
+	MatchDevicePath "/dev/input/event*"
+	Driver		"libinput"
+	Option		"Tapping" "on"
+EndSection
+----
+
+*Note*: On the MSI GE63 this led to right click by tapping with two fingers and
+middle button by tapping with three fingers.
+
 === Snow on windows
 
 Start `xsnow`.
@@ -125,3 +142,23 @@ OpenGL renderer string: NV118
 DRI_PRIME=0 glxinfo | grep "OpenGL renderer"
 OpenGL renderer string: Mesa DRI Intel(R) HD Graphics 5500 (Broadwell GT2)
 ----
+
+=== Composite manager
+
+Use `compton`. It is a fork from a fork from `xcompmgr`.
+
+[source,bash]
+----
+pacman -S compton
+----
+
+The configuration file is `/etc/xdg/compton.conf`.
+
+Autostart it with your `.xinitrc` for example.
+
+[source,bash]
+----
+compton -b -d :0
+----
+
+`-b` starts in background mode and `-d :0` starts it on all monitors belonging to display `:0`.

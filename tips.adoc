@@ -34,6 +34,8 @@ include::net.adoc[]
 
 include::X.adoc[]
 
+include::wm.adoc[]
+
 include::file.adoc[]
 
 include::filesys.adoc[]

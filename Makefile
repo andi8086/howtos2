@@ -17,6 +17,8 @@ DOCFILES := tips.adoc \
 		maintenance.adoc \
 		virt.adoc \
 		X.adoc \
+		wm.adoc \
+		i3.adoc \
 		net.adoc \
 		kernel.adoc \
 		systemd-overlay.adoc \
