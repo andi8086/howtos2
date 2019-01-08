@@ -144,7 +144,8 @@ interval=30
 
 # Date Time
 [time]
-command=date '+%Y-%m-%d %H:%M:%S'
+#command=date '+%Y-%m-%d %H:%M:%S'
+command=date '+%R:%S %Y/%m/%d %a(%j)'
 interval=1
 
 [cpu-temp]
