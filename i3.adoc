@@ -37,6 +37,26 @@ exec --no-startup-id nitrogen --restore
 
 To configure it, just start `nitrogen`.
 
+==== lock screen
+
+Use `i3lock` and add key binding to `.config/i3/config`:
+
+----
+bindsym $mod+F12 exec --no-startup-id i3lock -c 000000 && sleep 1
+----
+
+This will start i3lock with black background color. You can then
+lock your screen by pressing `<WIN>+<F12>`.
+
+==== windows floating per default
+
+If you want your windows to be floating as default, add the following
+to your i3 config file:
+
+----
+for_window [class="[.]*"] floating enable
+----
+
 ==== i3 blocks status bar
 
 [source,bash]
@@ -182,7 +202,7 @@ temp=$(
 if [[ "$temp" -gt 500 ]]; then
     printf "na"
     exit 0
-fi 
+fi
 
 printf '%s\u2009°C\n' $temp
 
@@ -252,3 +272,28 @@ elif [[ $QUALITY -lt 40 ]]; then
     echo "#FF0000"
 fi
 ----
+
+==== rofi task switcher
+
+`rofi` can be used as a nice combination of task switcher and executor to replace `dmenu`.
+
+Install it with
+
+----
+sudo pacman -S rofi
+----
+
+Use a script to bind the combi mode to a key in `~/.config/i3/config`. Direct execution failed for me.
+
+----
+bindsym $mod+Tab exec --no-startup-id ~/.scripts/rofi
+----
+
+And the script `~/.scripts/rofi`:
+
+[source,bash]
+----
+#!/bin/bash
+rofi -combi-modi window,drun -show combi -modi combi
+----
+
