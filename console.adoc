@@ -81,3 +81,39 @@ Here `a` effectively becomes a newline.
 ----
 bash -c TEST="/usr/share/zoneinfo/zone.tab"; echo "${TEST##*/}"
 ----
+
+=== Systemd service with interactive console
+
+Let's say you want a service that starts a server. And the server has an interactive console like the Quake3 dedicated server.
+You can create a startup service like this:
+
+[source]
+----
+[Unit]
+Description=q3 dedicated server
+
+[Service]
+ExecStart=/usr/bin/screen -dmS ${SCREEN_TITLE} -O -l /home/q3/start.sh
+User=q3
+Group=q3
+Type=forking
+Environment=SCREEN_TITLE=q3
+RemainAfterExit=false
+Restart=always
+RestartSec=5s
+SuccessExitStatus=1
+
+[Install]
+WantedBy=default.target
+----
+
+This creates a screen for user `q3` and title `q3`. You can later enter this screen to interactively control the server with:
+
+[source,bash]
+----
+su - q3
+script /dev/null
+screen -r q3
+----
+
+Exit `screen` with `STRG+A`, `STRG+D`.
