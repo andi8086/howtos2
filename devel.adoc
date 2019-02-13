@@ -53,6 +53,45 @@ include::makefile.adoc[]
 
 === C/C++
 
+==== Multilib (32-bit on 64-bit system)
+
+To run 32-bit applications on a 64-bit system, one has to install the 32-bit libc and libstdc++.
+
+===== Debian
+
+[source,bash]
+----
+dpkg --add-architecture i386
+apt-get update
+apt-get install libc6:i386 libstdc++6:i386
+----
+
+===== Arch
+
+Add the following to `/etc/pacman.conf`
+
+[source]
+----
+[multilib]
+Include = /etc/pacman.d/mirrorlist
+----
+
+All packages in `multilib` can be listed with
+
+[source,bash]
+----
+pacman -Sl multilib
+----
+
+32-bit libraries begin with `lib32-`. The C library `lib32-glibc` is in the `lib32-gcc-libs` package, which in turn is in the `multilib-devel` group.
+
+To remove all packages installed with multilib, run
+
+[source,bash]
+----
+pacman -R $(comm -12 <(pacman -Qq | sort) <(pacman -Slq multilib | sort))
+----
+
 ==== Order of object files in static library
 
 The order does not matter. Just package all object files with
