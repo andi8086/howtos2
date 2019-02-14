@@ -16,6 +16,7 @@ DOCFILES := tips.adoc \
 		doc.adoc \
 		filesys.adoc \
 		maintenance.adoc \
+		distro-cache.adoc \
 		virt.adoc \
 		X.adoc \
 		wm.adoc \

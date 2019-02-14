@@ -4,6 +4,10 @@
 
 include::pacman.adoc[]
 
+=== distro package caching
+
+include::distro-cache.adoc[]
+
 === gitlab
 
 After upgrading `gitlab`, migrate the database:
