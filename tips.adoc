@@ -23,7 +23,7 @@ In this document I assembled a lot of information I gathered during my work of t
 
 === Acknowledgments
 
-I would like to thank Dr. rer. nat. Christian Storm, Claudius Heine and Daniel Wagner for useful tips and interesting discussions and insights.
+I would like to thank Christian, Claudius and Daniel for useful tips and interesting discussions and insights.
 
 include::boot.adoc[]
 
