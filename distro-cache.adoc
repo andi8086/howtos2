@@ -1,0 +1,63 @@
+==== Debian APT Cache
+
+==== apt-cacher-ng
+
+*NOTE*: The following is only for `http`, not for `https` fetching.
+
+Install it with
+
+[source,bash]
+----
+sudo apt-get install apt-cacher-ng
+----
+
+Configure it with `/etc/apt-cacher-ng/acng.conf`:
+
+[source]
+----
+Port: 3142
+VerboseLog: 1
+ForceManaged: 0
+----
+
+If you already use a proxy to connect to the internet, specify it like this:
+[source]
+----
+Proxy: http://myproxy:proxyport
+----
+
+Now the only thing you have to do is to specify the apt-proxy in your environment:
+
+[source,bash]
+----
+export http_proxy=localhost:3142
+----
+
+or add it to `/etc/apt/apt.conf.d/01-apt-cacher-ng-proxy`:
+
+[source,bash]
+----
+Acquire::http { Proxy "http://localhost:3142"; };
+----
+
+or set it in the mirror list `/etc/apt/sources.list` directly by replacing
+
+[source]
+----
+deb http://deb.mirror.xyz
+----
+
+with
+
+[source]
+----
+deb http://localhost:3142/deb.mirror.xyz
+----
+
+Then start it with
+
+[source,bash]
+----
+sudo /etc/init.d/apt-cacher-ng restart
+sudo apt-get update
+----
