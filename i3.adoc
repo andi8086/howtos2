@@ -298,3 +298,14 @@ And the script `~/.scripts/rofi`:
 rofi -combi-modi window,drun -show combi -modi combi
 ----
 
+==== Mouse Warping
+
+If coming from a different output, focusing a window can cause the mouse cursor to jump to its center. To disable this bullshit, add
+
+[source]
+----
+mouse_warping none
+----
+
+to your i3 config.
+
