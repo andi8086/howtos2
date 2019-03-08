@@ -129,3 +129,10 @@ zpool import -a
 ----
 
 include::systemd-overlay.adoc[]
+
+
+=== Mobile phones
+
+Usually mobile phones use the media transfer protocol (MTP). To download or
+upload files, you can use the `android-file-transfer` package and the command
+with the same name.
