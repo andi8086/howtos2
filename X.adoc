@@ -163,6 +163,8 @@ compton -b -d :0
 
 `-b` starts in background mode and `-d :0` starts it on all monitors belonging to display `:0`.
 
+*NOTE*: This creates a segfault on my kernel 5.0.4. Leaving `-d :0` however works.
+
 ==== Transparency for special window class
 
 For example to make all `urxvt` windows transparent, add the following to
