@@ -8,6 +8,11 @@ include::pacman.adoc[]
 
 include::distro-cache.adoc[]
 
+=== Timekeeping
+
+Enable `systemd-timesyncd` with correctly set `/etc/localtime`, which points to
+`/usr/share/zoneinfo/Europe/Berlin` for example.
+
 === gitlab
 
 After upgrading `gitlab`, migrate the database:
