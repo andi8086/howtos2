@@ -1,5 +1,41 @@
 == GUI
 
+=== WLAN Gui
+
+Install wpa-cute from `https://aur.archlinux.org/wpa-cute`
+
+Next, add a configuration file for wpa_supplicant to `/etc/wpa_supplicant/wpa_supplicant-IFNAME.conf`:
+
+[source]
+----
+ctrl_interface=/run/wpa_supplicant
+ctrl_interface_group=wheel
+update_config=1
+----
+
+Also create a systemd network file to run DHCP on the interface:
+
+[source]
+----
+[Match]
+Name=IFNAME
+
+[Network]
+DHCP=ipv4
+----
+
+And don't forget to enable and start the services
+
+[source,bash]
+----
+# systemctl start systemd-networkd
+# systemctl start wpa_supplicant@IFNAME.service
+# systemctl enable systemd-networkd
+# systemctl enable wpa_supplicant@IFNAME.service
+----
+
+Then add `wpa-cute` to your x start file, i.e. `~/.xinitrc`.
+
 === Gnome configuration
 
 [source,bash]
