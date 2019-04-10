@@ -75,6 +75,25 @@ IFS=$IFSBACK
 
 Here `a` effectively becomes a newline.
 
+=== Arrays in Shell ===
+
+Both `zsh` and `bash` support the same array syntax.
+
+We can create an indexed array for example with
+
+[source,bash]
+----
+arr1=(
+   element1
+   element2
+)
+----
+
+Now we can get all elements of this array with both `"${arr1[@]}"` or `"${arr1[\*]}"`. The difference is that `[@]` expands to one word each, as it is needed in for loops where `[*]` expands to one word. However, this is only true if the variable is double-quoted. If not, both expand to one word each entry.
+
+One element is indexed starting with 0 from beginning or -1 from the end. So `arr1[-1]` gives the last element, and `arr[-2]` the second last, etc...
+
+
 === Separate filename with extension from path
 
 [source,bash]
@@ -117,3 +136,4 @@ screen -r q3
 ----
 
 Exit `screen` with `STRG+A`, `STRG+D`.
+
