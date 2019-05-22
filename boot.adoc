@@ -18,7 +18,7 @@ For different architectures, there exit standard boot file names:
 
 === Installing GRUB
 
-=== Removeable disk
+==== Removeable disk
 
 To install grub to create a bootable USB stick, just use
 
@@ -59,4 +59,67 @@ boot
 
 _NOTE_: This does not have a grub menu, it just boots a kernel.
 
+==== Legacy GRUB onto Floppy
 
+Prepare an empty floppy, e.g. with `dd`, called the auxiliary floppy
+and dump stage1 and stage2 of grub onto the disk:
+
+[source,bash]
+----
+dd if=/dev/zero of=auxfloppy.img bs=1k count=1440
+dd if=grub/stage1/stage1 bs=512 count=1 conv=notrunc of=auxfloppy.img
+dd if=grub/stage2/stage2 bs=512 seek=1 conv=notrunc of=auxfloppy.img
+----
+
+_NOTE_: This will destroy the file system format of the floppy but makes grub boot from it.
+
+Create the target floppy image:
+
+[source,bash]
+----
+dd if=/dev/zero of=testdisk.img bs=1k count=1440
+mkfs.vfat -F12 testdisk.img
+sudo mount testdisk.img /mnt
+sudo mkdir -p /mnt/boot/grub
+
+cat <<EOF > menu.lst
+timeout 0
+color light-gray/blue yellow/blue
+title GRUB Boot Floppy
+configfile /boot/grub/boot.lst
+EOF
+
+cat <<EOF > boot.lst
+title Load kernel XYZ
+kernel /boot/XYZ
+EOF
+
+sudo cp menu.lst boot.lst /mnt/boot/grub
+sudo cp src/stage1/stage1 /mnt/boot
+sudo cp src/stage2/stage2 /mnt/boot
+sudo umount /mnt
+----
+
+Now start `qemu-i386` or `qemu-system-x86_64` with the boot floppy:
+
+[source,bash]
+----
+qemu-i386 -fda auxfloppy.img
+----
+
+You should get a `grub` prompt. Then change in the qemu view-menu to compatmonitor0 and enter
+
+[source,bash]
+----
+change floppy0 testdisk.img
+----
+
+Rechange in view-menu to vga and enter at the qemu prompt:
+
+[source,bash]
+----
+install (fd0)/boot/stage1 (fd0) (fd0)/boot/stage2 (fd0)/boot/grub/menu.lst
+reboot
+----
+
+Qemu should now boot from the testdisk into grub.
