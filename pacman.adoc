@@ -5,6 +5,29 @@
 pacman -Rdd <package>
 ----
 
+==== Keep only $n versions in the cache
+
+[source,bash]
+----
+paccache -rk $n
+----
+
+*NOTE*: Without the -k option, 3 version are kept per default.
+
+==== Dryrun paccache pruning
+
+[source,bash]
+----
+paccache -d
+----
+
+==== Move old packages from cache to <dir>
+
+[source,bash]
+----
+paccache -m <dir>
+----
+
 ==== Creating user packages
 
 ===== Sources with autoconf bundled with PKGBUILD
