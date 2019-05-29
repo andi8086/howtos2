@@ -1,0 +1,24 @@
+== Command Line Tools
+
+=== Equivalence Of tools
+
+For some operations, i.e. extracting output snippets, a veriety of tools can be used, like `cut`, `awk`, `perl`, `grep`, `sed` or even shell specific functionality.
+
+For example if the output of `hostname -i` gives 4 IP addresses and one only wants to get the first two of them, the following commands are equivalent:
+
+[source,bash]
+----
+hostname -i | cut -d' ' -f 1,2
+hostname -i | awk '{print $1" "$2}'
+hostname -i | perl -nle'/(\d+\.\d+\.\d+\.\d+\ \d+\.\d+\.\d+\.\d+)/ && print $1'
+hostname -i | grep -oP '^(([\d]{1,3}\.[\d]{1,3}){3}\ ){2}'
+hostname -i | sed  's/\(\(\([0-9]\{1,3\}\.\)\{1,3\}\([0-9]\)\{1,3\}\ \)\{2\}\).*/\1/'
+----
+
+Another possibility is using bash arrays:
+
+[source,bash]
+----
+A=($(hostname -i)); print $A[1] $A[2];
+----
+
