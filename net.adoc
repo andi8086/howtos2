@@ -112,3 +112,46 @@ Serve file for first HTTP request
 { printf 'HTTP/1.0 200 OK\r\nContent-Length: %d\r\n\r\n' "$(wc -c < some.file)"; cat some.file; } | nc -l 8080
 ----
 
+=== SSH login via pubkey
+
+Create a keypair with `ssh-keygen`. Be sure the identity is added to the SSH agent, i.e. with
+
+[source,bash]
+----
+eval $(ssh-agent)
+ssh-add <path/to/>id-rsa
+----
+
+Now the most handy approach is to configure the `~/.ssh/ssh_config` file:
+
+[source,bash]
+----
+Host jumpserver
+	Hostname <ip-address/or/hostname>
+	User <name-of-user-on-jump-server>
+
+Host testhost
+	Hostname <ip-address/or/hostname>
+	User <name-of-login-user>
+	ProxyJump jumpserver
+	LocalForward 8081 127.0.0.1:80
+----
+
+This example shows how you can establish an SSH connection with the command
+
+[source,bash]
+----
+ssh testhost
+----
+
+where it will automatically jump over an intermediate host named `jumpserver` and forward the http port 80 from the testhost to port 8081 onto your local machine.
+
+==== Install SSH identity key
+
+[source,bash]
+----
+ssh-copy-id -i <path/to/file/>id-rsa.pub testhost
+----
+
+This will install the public key into the `authorized_keys` on the `testhost`.
+
