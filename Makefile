@@ -15,6 +15,7 @@ DOCFILES := tips.adoc \
 		console.adoc \
 		doc.adoc \
 		tools.adoc \
+		file.adoc \
 		filesys.adoc \
 		maintenance.adoc \
 		distro-cache.adoc \
