@@ -49,6 +49,8 @@ include::doc.adoc[]
 
 include::setup.adoc[]
 
+include::sound.adoc[]
+
 include::maintenance.adoc[]
 
 include::devel.adoc[]

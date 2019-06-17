@@ -1,0 +1,103 @@
+== Digital Audio Workstation
+
+=== MIDI Synth
+
+==== Fluidsynth, Pulseaudio and Jackd
+
+Usually `firefox`, `flash` and the like use pulse audio for sound output. However, pulse audio directly talks to `alsa`. The preferred midi tracker `rosegarden` wants `jackd`. On startup, `jackd` throws out `pulse audio`, so that there is no sound output of pulse anymore. Furthermore ,`fluidsynth` works well with output to `pulse audio`. To solve this, there is a module `module-jack-sink`, to route the sound from `pulse audio` trough `jackd`.
+Install the following
+
+[source,bash]
+----
+pacman -S pulseaudio jack pulseaudio-jack fluidsynth qjackctl qsynth
+pacman -S soundfont-fluid
+----
+
+Tell fluidsynth to run with `pulse audio` rather than `alsa`:
+
+`/etc/conf.d/fluidsynth`
+[source,bash]
+----
+SDL_SOUNDFONTS=/usr/share/soundfonts/FluidR3_GM.sf2
+
+OTHER_OPTS='-a pulseaudio -m alsa_seq -r 48000'
+----
+
+Install the user service:
+
+Copy `/usr/lib/systemd/user/fluidsynth.service` to `/etc/systemd/user` and change the `WantedBy` entry to `default.target`. Also add `After=pulseaudio.service` into the `unit` section:
+
+[source,bash]
+----
+[Unit]
+Description=FluidSynth Daemon
+Documentation=man:fluidsynth(1)
+After=sound.target
+After=pulseaudio.service
+
+[Service]
+Type=notify
+NotifyAccess=main
+EnvironmentFile=/etc/conf.d/fluidsynth
+EnvironmentFile=-%h/.config/fluidsynth
+ExecStart=/usr/bin/fluidsynth -is $OTHER_OPTS $SOUND_FONT
+
+[Install]
+WantedBy=default.target
+----
+
+Enable the service to start automatically.
+
+[source,bash]
+----
+systemctl --user enable fluidsynth
+----
+
+When running `jackd`, be sure that the midi driver is `seq`. You can set this with `qjackctl` in the `parameters` tab on the right. The driver is `alsa`.
+
+For `jackd` to run as "realtime" program, adapt `/etc/security/limits.conf`:
+
+[source]
+----
+@audio	-	rtprio	99
+----
+
+Second, it may be necessary to set the output device in `qjackctl` for example to `hw:PCH,0` in the `Advanced` tab.
+
+
+After `jackd` is running, issue
+
+[source,bash]
+----
+pacmd load-module module-jack-sink
+----
+
+This will autoconnect output of pulse audio to forward sound to jackd.
+
+Start `fluidsynth` with `qsynth` if you don't hear anything, be sure, you have loaded a soundfont. Furthermore, select the correct card profile in pulse audio, since midi playback is routed through pulse audio.
+
+===== Summary
+
+Midi playback in linux with `aplaymidi` requires
+
+* fluidsynth
+* pulseaudio
+
+Midi tracker rosengarden with `jackd` requires
+
+* fluidsynth
+* pulseaudio
+* jackd
+* Output routing of pulseaudio through jackd with module-jack-sink
+
+==== MIDI playback in DOSBox
+
+List the midi synth device with `aconnect -l` and note the `FLUID Synth` client, i.e. `128:0`.
+
+Then in your `dosbox.conf`, use
+
+[source]
+----
+[MIDI]
+midiconfig=128:0
+----

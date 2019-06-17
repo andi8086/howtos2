@@ -9,6 +9,7 @@ install: ./gems
 DOCFILES := tips.adoc \
 		gui.adoc \
 		setup.adoc \
+		sound.adoc \
 		mutt.adoc \
 		devel.adoc \
 		boot.adoc \
