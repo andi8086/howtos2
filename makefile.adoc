@@ -46,3 +46,13 @@ OBJ_FILES := $(addprefix build/, $(OBJs))
 ----
 
 `.PHONY: clean` defines a phony target named clean. A phony target is a target that does not create a file.
+
+
+==== Wildcard sorting
+
+As of version 3.82 (2019/07/28) make does not return sorted values with wildcards. Sorting has to be done explicitely.
+
+[source,makefile]
+----
+blabla := $(sort $(wildcard *))
+----
