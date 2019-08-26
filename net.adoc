@@ -155,3 +155,12 @@ ssh-copy-id -i <path/to/file/>id-rsa.pub testhost
 
 This will install the public key into the `authorized_keys` on the `testhost`.
 
+=== SSH login through proxy
+
+Use `ncat` in your `.ssh/config`:
+
+[source]
+----
+Host x.y.de
+	ProxyCommand ncat --proxy PROXYIP:PROXYPORT %h %p
+----
