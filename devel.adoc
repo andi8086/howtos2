@@ -346,3 +346,32 @@ Run with
 bundle exec asciidoctor-pdf <filename>
 ----
 
+=== Xilinx FPGA
+
+==== ISE Webpack 14.7
+
+You need the following packages:
+
+* ncurses5-compat-libs (AUR)
+* libstdc++5
+* openmotif
+* xorg-fonts-75dpi
+* xorg-fonts-100dpi
+
+The bundled EDK gcc compiler needs:
+
+* lib32-glibc
+* lib32-ncurses5-compat-libs (AUR)
+
+Digilent USB-JTAG Drivers
+
+* fxload (AUR)
+* digilent.adept.runtime (AUR)
+* digilent.adept.utilities (AUR)
+
+Xilinx Platform Cable
+
+* fxload (AUR)
+* fxload-libusb (AUR)
+
+
