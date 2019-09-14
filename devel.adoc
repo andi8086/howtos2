@@ -374,4 +374,40 @@ Xilinx Platform Cable
 * fxload (AUR)
 * fxload-libusb (AUR)
 
+=== PHP
+
+You can run PHP as local development server with:
+
+[source,bash]
+----
+php -S localhost:8000
+----
+
+==== Symfony
+
+Install symfony and composer with
+
+[source,bash]
+----
+sudo pacman -S composer
+wget https://get.symfony.com/cli/installer -O - | bash
+export PATH="$HOME/.symfony/bin:$PATH"
+----
+
+Activate the iconv plugin by creating the file `/etc/php/conf.d/00-iconv.ini` with the following content:
+
+[source]
+----
+extension=iconv.so
+----
+
+===== Create an API framework
+
+Go to your project root and type
+
+[source,bash]
+----
+symfony new <project_name>
+----
+
 
