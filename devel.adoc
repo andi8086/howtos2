@@ -410,4 +410,22 @@ Go to your project root and type
 symfony new <project_name>
 ----
 
+=== MariaDB
 
+==== Enable MariaDB for PHP 7
+
+Add `01-mysqli.ini` to `/etc/php/conf.d` with the following content:
+
+[source]
+----
+extension=mysqli
+----
+
+==== Set root password like in older versions
+
+Execute the following with `sudo mariadb`:
+
+[source,sql]
+----
+ALTER USER root@localhost IDENTIFIED VIA mysql_native_password USING PASSWORD("verysecret")
+----
