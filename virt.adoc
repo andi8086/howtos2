@@ -143,3 +143,28 @@ Requires=<containername>.service
 WantedBy=multi-user.target
 ----
 
+=== Vagrant
+
+==== Configure proxy in vagrant file
+
+Install the `vagrant-proxyconf` plugin:
+
+[source,bash]
+----
+vagrant plugin install vagrant-proxyconf
+----
+
+Add the following to your `Vagrantfile` according to your needs:
+
+[source]
+----
+Vagrant.configure("2") do |config|
+  if Vagrant.has_plugin?("vagrant-proxyconf")
+    config.proxy.http     = "http://192.168.0.2:3128/"
+    config.proxy.https    = "http://192.168.0.2:3128/"
+    config.proxy.no_proxy = "localhost,127.0.0.1,.example.com"
+  end
+  # ... other stuff
+end
+----
+
