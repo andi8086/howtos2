@@ -68,6 +68,6 @@ The `-w` parameter specifies how many bytes are displayed per output line.
 tar czvf - dir/ | split -b 1G - goal.tar.gz.
 ----
 
-This will output the tar data to `stdout` and pipe it to strip to create equisize parts of `1G` with automatic sort suffix.
+This will output the tar data to `stdout` and pipe it to `split` to create equisized parts of `1G` with automatic sort suffix.
 
 Creates `goal.tar.gz.aa`, `goal.tar.gz.ab`, ...
