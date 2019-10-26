@@ -429,3 +429,29 @@ Execute the following with `sudo mariadb`:
 ----
 ALTER USER root@localhost IDENTIFIED VIA mysql_native_password USING PASSWORD("verysecret")
 ----
+
+=== Linux Kernel
+
+==== Compile a new single intree-module
+
+[source,bash]
+----
+cd <kernel-source>
+make menuconfig
+----
+
+Select the module that was missing.
+
+[source,bash]
+----
+make scripts prepare modules_prepare
+make -C . M=drivers/<path to module>
+----
+
+Copy the module and update dependencies.
+
+[source,bash]
+----
+sudo cp <path-to-module>/xyz.ko /lib/modules/<kernel-version>/<path-to-module>/
+sudo depmod
+----
