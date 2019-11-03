@@ -23,3 +23,88 @@ su - gitlab -s /bin/sh -c "cd '/usr/share/webapps/gitlab'; bundle-2.3 exec rake 
 systemctl daemon-reload
 systemctl restart gitlab-sidekiq gitlab-unicorn gitlab-workhorse gitlab-gitaly
 ----
+
+=== Backup to Tape
+
+==== SDLT600 tape drive
+
+The tape drive is represented by two device nodes: `/dev/st0` and `/dev/nst0`. The `nst` variant means `no autorewind`.
+
+For operations on the drive, `tar` and `mt` support the `TAPE` environment variable. Set it to the non-rewinding device node:
+
+[source,bash]
+----
+export TAPE=/dev/nst0
+----
+
+The `mt-st` tools are needed.
+
+https://aur.archlinux.org/packages/mt-st-git
+
+https://github.com/iustin/mt-st
+
+To work with a tape, first set the size of the blocks and verify it.
+
+[source,bash]
+----
+mt defblksize 512
+mt status
+----
+
+===== Erase a tape
+
+[source,bash]
+----
+mt rewind
+mt erase
+----
+
+===== Backup files
+
+First go to end of data and then backup with tar.
+
+[source,bash]
+----
+mt eod
+tar zcv file1 file2 file3 ...
+----
+
+===== List files of current record
+
+[source,bash]
+----
+tar tz
+----
+
+===== Restore files of current record
+
+[source,bash]
+----
+tar zxv -C <target-dir>
+----
+
+===== Navigate on records
+
+[source,bash]
+----
+mt eod		# goto end of data
+mt bsf <count>	# backward space <count> files, head is on last block
+mt fsf <count>	# forward space <count> files, head is on first block
+mt asf <count>	# goto absolute file beginning, number <count>
+mt bsfm <count>  # backward space count files, then forward space one
+		# record
+		#  = mt bsf <count>; mt fsf 1
+		# head is on beginning of file, <count-1>  files before
+		# current file
+mt fsfm <count> # forward <space> count files, then backward one record.
+		# head is on last block of file <count-1> files past the
+		# current file
+		# = mt fsf <count>; mt bsf 1
+----
+
+===== Unload tape
+
+[source,bash]
+----
+mt offline
+----
