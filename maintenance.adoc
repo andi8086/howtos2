@@ -51,6 +51,35 @@ mt defblksize 512
 mt status
 ----
 
+===== General Configuration
+
+The tool `stinit` is used to configure tape drives. The file `/etc/stinit.def` holds the definitions for each drive. See `man stinit`. A global config may look like this:
+
+[source]
+----
+{
+scsi2logical=1
+can-bsr=1
+auto-lock=1
+two-fms=0
+drive-buffering=1
+read-ahead=1
+async-writes=1
+can-partitions=1
+fast-mteom=0
+sysv=1
+
+mode1 blocksize=512 compression=1
+mode2 disabled=1
+mode3 disabled=1
+mode4 disabled=1
+}
+----
+
+Before each such config block `manufacturer=XXX`, `model=XXX` and/or `revision=XXX` may be specified. These values can be retrieved by issuing `stinit -v`. Then the config block is only applied if the specified values match.
+
+`mode1` is for `st0, nst0`, `mode2` is for `st0l, nst0l`, `mode3` is for `st0m, nst0m`, and `mode4` is for `st0a, nst0a` respectively.
+
 ===== Erase a tape
 
 [source,bash]
