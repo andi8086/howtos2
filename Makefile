@@ -1,7 +1,8 @@
 all: install tips.pdf tips.html
 
 install: ./gems
-	bundle install --path ./gems
+	bundle config set path ./gems
+	bundle install
 
 ./gems:
 	install -d ./gems
