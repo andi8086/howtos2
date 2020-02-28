@@ -53,6 +53,32 @@ include::makefile.adoc[]
 
 === C/C++
 
+==== Vim Autocompletion
+
+To have autocompletion in vim, install the following package:
+
+(https://aur.archlinux.org/vim-youcompleteme-git)
+
+Then add to your .vim.rc:
+
+[source]
+----
+Plugin 'YouCompleteMe'
+----
+
+between `call vundle#begin(...)` and `vundle#end`.
+
+Also you need one default `.ycm_extra_conf.py`. You can
+get that file from `github.com/ycm-core/ycm` and copy it to `.vim`.
+Then add the following to your .vim.rc:
+
+[source]
+----
+let g:ycm_global_ycm_extra_conf = '.vim/.ycm_extra_conf.py'
+let g:ycm_confirm_extra_conf = 0
+----
+
+
 ==== Multilib (32-bit on 64-bit system)
 
 To run 32-bit applications on a 64-bit system, one has to install the 32-bit libc and libstdc++.
