@@ -32,3 +32,43 @@ Add options for module to a conf file in `/etc/modprobe.d/` with
 ----
 options <module_name> <param>=<value>
 ----
+
+=== Sys-Rq key combo
+
+Enable by adding `/etc/sysctl.d/99-sysctl.conf` with:
+
+[source]
+----
+kernel.sysrq = 1
+----
+
+Low level system control in case of hanging system with:
+
+`<ALT> + <SYS-RQ> + <key>`
+
+where `<key>` is
+
+|===
+
+| `r` | takes control of mouse and keyboard from X
+| `o` | shut down system via APM
+| `s` | sync disk caches
+| `u` | remount all file systems read-only
+| `b` | reboot immediatelly
+| `m` | dump memory info
+| `k` | kill all processes belonging to terminal
+| `e` | SIGTERM to all processes except init
+| `i` | SIGKILL to all processes except init
+| `l` | SIGKILL to all processes including init
+
+|===
+
+To cleanly shutdown, use the sequence `reisub`. Give `e` a few seconds.
+
+You can increase the logging level of the active terminal with `8`.
+
+Triggering is also possible by writing the `<key>` into `/proc/sysrq-trigger`.
+
+
+
+
