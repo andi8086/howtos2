@@ -168,3 +168,19 @@ Vagrant.configure("2") do |config|
 end
 ----
 
+=== Mount .vdi images
+
+Use `qemu-nbd` with kernel module `nbd` loaded:
+
+```bash
+qemu-nbd -c /dev/nbd0 image.vdi
+```
+
+then mount the needed partition `/dev/nbd0pX`.
+Afterwards, unmount and disconnect with
+
+```bash
+qemu-nbd -d /dev/nbd0
+```
+
+
