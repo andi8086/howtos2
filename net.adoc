@@ -164,3 +164,54 @@ Use `ncat` in your `.ssh/config`:
 Host x.y.de
 	ProxyCommand ncat --proxy PROXYIP:PROXYPORT %h %p
 ----
+
+
+=== Forward Internet Access to Remote Host
+
+Client A has internet access, remote host B does not.
+Use `dhcp` and `squid`:
+
+
+On client A install the following:
+
+[source,bash]
+----
+pacman -S dhcp
+pacman -S squid
+----
+
+Then configure 'dhcp' to provide the wanted dhcp address range. (optional).
+
+Make sure you have the following in `/etc/squid/squid.conf':
+
+[source]
+----
+http_access allow all
+----
+
+or what you prefer.
+
+Then, with `squid` running, connect with the following to host B:
+
+[source,bash]
+----
+ssh -R 3129:localhost:3128 user@HostB
+----
+
+
+Add the following to `/etc/environment`:
+
+[source,bash]
+----
+export http_proxy=http://127.0.0.1:3129
+export https_proxy=http://127.0.0.1:3129
+----
+
+After a
+
+[source,bash]
+----
+source /etc/environment
+----
+
+you should have internet access.
