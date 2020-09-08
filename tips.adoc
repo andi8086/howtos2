@@ -58,3 +58,5 @@ include::devel.adoc[]
 include::virt.adoc[]
 
 include::specific.adoc[]
+
+include::outdated.adoc[]

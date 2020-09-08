@@ -1,0 +1,13 @@
+== Outdated init systems
+
+=== Upstart
+
+Ubuntu 14 uses upstart.
+
+==== Disable light-dm
+
+echo "manual" | sudo tee -a /etc/init/lightdm.override
+
+==== Enable autologin
+
+add `--autologin <user>` to getty call in `/etc/init/tty1.conf`.
