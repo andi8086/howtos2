@@ -55,15 +55,11 @@ include::makefile.adoc[]
 
 ==== Vim Autocompletion
 
-To have autocompletion in vim, install the following package:
-
-(https://aur.archlinux.org/vim-youcompleteme-git)
-
-Then add to your .vim.rc:
+To have autocompletion in vim, add to your `.vim.rc`:
 
 [source]
 ----
-Plugin 'YouCompleteMe'
+Plugin 'ycm-core/YouCompleteMe'
 ----
 
 between `call vundle#begin(...)` and `vundle#end`.
@@ -76,8 +72,18 @@ Then add the following to your .vim.rc:
 ----
 let g:ycm_global_ycm_extra_conf = '.vim/.ycm_extra_conf.py'
 let g:ycm_confirm_extra_conf = 0
+let g:ycm_server_keep_logfiles = 1
+let g:ycm_server_log_level = 'debug'
 ----
 
+Compile `you-complete-me` with `--all` option in `<vundleplugs>/YouCompleteMe` (Your <vundelplugs> directory can be set in `.vimrc` as option to `call vundle#begin(<path>)`.
+
+Be sure you also have `clang` installed.
+
+[source,bash],bash]
+----
+./install.py --all
+----
 
 ==== Multilib (32-bit on 64-bit system)
 

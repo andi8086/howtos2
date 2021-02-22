@@ -14,7 +14,7 @@ endif::[]
 :toc:
 :title-logo-image: image::pba.png[width=300,align=center]
 Andreas Reichel
-2015-2020
+2015-2021
 
 [preface]
 == Documentation Preface
