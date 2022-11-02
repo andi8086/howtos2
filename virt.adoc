@@ -184,3 +184,17 @@ qemu-nbd -d /dev/nbd0
 ```
 
 
+=== VirtualBox in Windows
+
+To make VMs available for all users, set the environment variable
+`VBOX_USER_HOME`.
+
+=== VirtualBox reset hard disk UUID
+
+When importing a hard disk image, the `UUID` might mismatch and Virtualbox
+might refues to start. To fix this, issue the command
+
+
+```bash
+VBoxManage internalcommands sethduuid <imagefile> <newUUID>
+```
