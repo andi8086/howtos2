@@ -112,7 +112,9 @@ Serve file for first HTTP request
 { printf 'HTTP/1.0 200 OK\r\nContent-Length: %d\r\n\r\n' "$(wc -c < some.file)"; cat some.file; } | nc -l 8080
 ----
 
-=== SSH login via pubkey
+=== SSH
+
+==== Login via pubkey
 
 Create a keypair with `ssh-keygen`. Be sure the identity is added to the SSH agent, i.e. with
 
@@ -146,7 +148,7 @@ ssh testhost
 
 where it will automatically jump over an intermediate host named `jumpserver` and forward the http port 80 from the testhost to port 8081 onto your local machine.
 
-==== Install SSH identity key
+==== Install identity key
 
 [source,bash]
 ----
@@ -155,7 +157,7 @@ ssh-copy-id -i <path/to/file/>id-rsa.pub testhost
 
 This will install the public key into the `authorized_keys` on the `testhost`.
 
-=== SSH login through proxy
+==== SSH login through proxy
 
 Use `ncat` in your `.ssh/config`:
 
@@ -164,6 +166,34 @@ Use `ncat` in your `.ssh/config`:
 Host x.y.de
 	ProxyCommand ncat --proxy PROXYIP:PROXYPORT %h %p
 ----
+
+==== SSH via Port 443
+
+Sometimes, port 22 is blocked. To still be able to use SSH, for example
+to push and pull to/from github, you can create `~/.ssh/config` and add
+
+[source]
+----
+Host github.com
+  Hostname ssh.github.com
+  Port 443
+----
+
+Of course, the remote host must support this.
+Then you can create your SSH keys and permanently select them with another entry into `~/.ssh/config`:
+
+[source]
+----
+IdentityFile ~/.ssh/github_id_rsa
+----
+
+You also have to change the remote URLs in your repositories as follows:
+
+`git@github.com:user/repo`.
+
+Now if you do a `git fetch -a` for example, it will ask for the password of the SSH key, if any.
+
+If you don't use `IdentityFile` in `.ssh/config`, then you have to add the identity manually with `ssh-add` as above.
 
 
 === Forward Internet Access to Remote Host
