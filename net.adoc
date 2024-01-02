@@ -255,3 +255,31 @@ In order to disable privileged ports, use
 ----
 sysctl -w net.ipv4.ip_unprivileged_port_start=0
 ----
+
+
+=== PHP
+
+==== PHP FPM
+
+The fpm module systemd unit has
+
+```
+ProtectSystem=full
+```
+
+in `/etc/systemd/system/multi-user.target.wants/php-fpm.service`
+
+
+which prevents `/usr` to be writeable. This will break almost all PHP applications.
+To allow this directory to be writeable, add
+
+```
+ReadWriteDirectories=/usr/share/nginx/
+```
+
+for example, or whatever you need and restart with
+
+```
+# systemctl daemon-reload
+# systemctl restart php-fpm
+```
