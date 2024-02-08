@@ -137,3 +137,34 @@ screen -r q3
 
 Exit `screen` with `STRG+A`, `STRG+D`.
 
+=== Color highlighting
+
+Sometimes it is nicer to have color output ;)
+
+==== man pages
+
+To make man pages be displayed with color, install `bat`.
+Add the following to `.zshrc` or alike.
+
+
+[source,shell]
+----
+export MANPAGER="sh -c 'col -bx | bat -l man -p'"
+export MANROFFOPT="-c"
+----
+
+Without the last option, strange ANSI codes were displayed
+inside the colored output in C source code.
+
+
+==== less
+
+
+Install the package `source-highlight` if not already done.
+Add the following to your `.zshrc` or alike.
+
+[source,shell]
+----
+export LESSOPEN="| /usr/bin/source-highlight-esc.sh %s"
+export LESS="-R "
+----
