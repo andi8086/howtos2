@@ -1,0 +1,636 @@
+=== Mail in a box on Ubuntu
+
+This is ubuntu specific, can be used in a VM for a dedicated
+machine.
+
+Install `mail-in-a-box`:
+
+----
+curl -s https://mailinabox.email/setup.sh | sudo -E bash
+----
+
+And give the system user, which is the default user a
+mail with a correct FQDN.
+
+For example:
+
+----
+Email: foo@lists.internal
+Hostname: box.lists.internal
+Europe/Berlin
+----
+
+Disable `ubuntu cloud services`:
+
+----
+sudo dpkg-reconfigure cloud-init
+
+> disable anything except 'None' 
+
+apt-get purge cloud-init
+sudo rm -rf /etc/cloud/ && sudo rm -rf /var/lib/cloud/
+----
+
+add to `/etc/hosts`:
+
+----
+127.0.2.1 lists.internal
+127.0.3.1 box.lists.internal
+----
+
+Reboot.
+
+Forward any needed ports through NAT:
+
+----
+we need ports 80, 443, 465 and 587, 993 map them to 8880, 8443, 8465 and 8587,
+----
+
+Now:
+
+* `https://lists.internal:8443` should display something about mailinabox
+* `http://lists.internal:8880` should dispay nginx default page
+
+Administration page is reached under
+
+`https://box.lists.internal:8443/admin`
+
+Password is what you set for the default user.
+
+
+In the `/etc/postfix/main.cf`, you have to set the external IP addr
+of the VM network interface to `mynetworks`.
+
+For example: Add '10.0.2.15/24' to mynetworks
+
+Set `smtpd_tls_auth_only` to no
+
+Install `mailman` mail lists with virtualenv
+
+There is no working package for ubuntu, because they are stupid.
+
+
+----
+sudo apt install python3-dev python3-venv sassc lynx
+----
+
+Setup database
+
+
+----
+$ sudo apt install postgresql libpq-dev
+
+$ sudo -u postgres psql
+psql (12.5 (Ubuntu 12.5-0ubuntu0.20.04.1))
+Type "help" for help.
+postgres=# create database mailman;
+CREATE DATABASE
+postgres=# create database mailmanweb;
+CREATE DATABASE
+postgres=# create user mailman with encrypted password 'mailman-pass';
+CREATE ROLE
+postgres=# grant all privileges on database mailman to mailman;
+GRANT
+postgres=# grant all privileges on database mailmanweb to mailman;
+GRANT
+postgres=# \q
+----
+
+Create mailman user
+
+
+----
+$ sudo useradd -m -d /opt/mailman -s /usr/bin/bash mailman
+$ sudo chown mailman:mailman /opt/mailman
+$ sudo chmod 755 /opt/mailman
+$ sudo su mailman
+----
+
+The following must be executed as mailman user
+
+
+----
+$ cd /opt/mailman
+$ python3 -m venv venv
+$ echo 'source /opt/mailman/venv/bin/activate' >> /opt/mailman/.bashrc
+$ . venv/bin/activate
+(venv)$ pip install wheel mailman psycopg2-binary
+----
+
+
+----
+# /etc/mailman3/mailman.cfg
+[paths.here]
+var_dir: /opt/mailman/mm/var
+
+[mailman]
+layout: here
+# This address is the "site owner" address.  Certain messages which must be
+# delivered to a human, but which can't be delivered to a list owner (e.g. a
+# bounce from a list owner), will be sent to this address.  It should point to
+# a human.
+site_owner: user@example.com
+
+[database]
+class: mailman.database.postgresql.PostgreSQLDatabase
+url: postgresql://mailman:MYPASSWORD@localhost/mailman
+
+[archiver.prototype]
+enable: yes
+
+# For the HyperKitty archiver.
+[archiver.hyperkitty]
+class: mailman_hyperkitty.Archiver
+enable: yes
+configuration: /etc/mailman3/mailman-hyperkitty.cfg
+
+[shell]
+history_file: $var_dir/history.py
+
+[mta]
+verp_confirmations: yes
+verp_personalized_deliveries: yes
+verp_delivery_interval: 1
+----
+
+
+And, create the /etc/mailman3/mailman-hyperkitty.cfg file containing these settings:
+
+----
+[general]
+base_url: http://127.0.0.1:8000/archives/
+api_key: Secret_Hyperkitty_API_Key
+----
+
+In postfix main.cf, add or create the following:
+
+
+----
+unknown_local_recipient_reject_code = 550
+owner_request_special = no
+
+transport_maps =
+    hash:/opt/mailman/mm/var/data/postfix_lmtp
+local_recipient_maps =
+    hash:/opt/mailman/mm/var/data/postfix_lmtp
+relay_domains =
+    hash:/opt/mailman/mm/var/data/postfix_domains
+----
+
+
+As mailman, create `/opt/mailman/mm/var/data`
+
+
+Create systemd service:
+
+`/etc/systemd/system/mailman3.service`
+
+----
+[Unit]
+Description=GNU Mailing List Manager
+After=syslog.target network.target postgresql.service
+
+[Service]
+Type=forking
+PIDFile=/opt/mailman/mm/var/master.pid
+User=mailman
+Group=mailman
+ExecStart=/opt/mailman/venv/bin/mailman start
+ExecReload=/opt/mailman/venv/bin/mailman restart
+ExecStop=/opt/mailman/venv/bin/mailman stop
+
+[Install]
+WantedBy=multi-user.target
+----
+
+
+----
+$ sudo systemctl start mailman3
+# Verify that the service is running.
+$ sudo systemctl status mailman3
+(venv)$ mailman info
+----
+
+Setup cron jobs
+
+----
+sudo -u mailman crontab -e
+
+@daily /opt/mailman/venv/bin/mailman digests --periodic
+@daily /opt/mailman/venv/bin/mailman notify
+----
+
+
+Install web UI
+
+----
+(venv) $ pip install mailman-web mailman-hyperkitty
+----
+
+
+Configure it
+
+
+`/etc/mailman3/settings.py`
+
+
+----
+# Mailman Web configuration file.
+# /etc/mailman3/settings.py
+
+# Get the default settings.
+from mailman_web.settings.base import *
+from mailman_web.settings.mailman import *
+
+# Settings below supplement or override the defaults.
+
+#: Default list of admins who receive the emails from error logging.
+ADMINS = (
+    ('Mailman Suite Admin', 'are@lists.internal'),
+)
+
+# Postgresql database setup.
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'mailmanweb',
+        'USER': 'mailman',
+        # TODO: Replace this with the password.
+        'PASSWORD': 'mailman-pass',
+        'HOST': 'localhost',
+        'PORT': '5432',
+    }
+}
+
+# 'collectstatic' command will copy all the static files here.
+# Alias this location from your webserver to `/static`
+STATIC_ROOT = '/opt/mailman/web/static'
+
+# enable the 'compress' command.
+COMPRESS_ENABLED = True
+
+# Make sure that this directory is created or Django will fail on start.
+LOGGING['handlers']['file']['filename'] = '/opt/mailman/web/logs/mailmanweb.log'
+
+#: See https://docs.djangoproject.com/en/dev/ref/settings/#allowed-hosts
+ALLOWED_HOSTS = [
+    "localhost",  # Archiving API from Mailman, keep it.
+    "127.0.0.1",
+    "lists.internal",
+    # "lists.your-domain.org",
+    # Add here all production domains you have.
+]
+
+#: See https://docs.djangoproject.com/en/dev/ref/settings/#csrf-trusted-origins
+#: For Django <4.0 these are of the form 'lists.example.com' or
+#: '.example.com' to include subdomains and for Django >=4.0 they include
+#: the scheme as in 'https://lists.example.com' or 'https://*.example.com'.
+CSRF_TRUSTED_ORIGINS = [
+    # "lists.internal"
+    # "lists.your-domain.org",
+    # Add here all production domains you have.
+]
+
+#: Current Django Site being served. This is used to customize the web host
+#: being used to serve the current website. For more details about Django
+#: site, see: https://docs.djangoproject.com/en/dev/ref/contrib/sites/
+SITE_ID = 1
+
+# Set this to a new secret value.
+SECRET_KEY = 'MyVerrySecretKey'
+
+# Set this to match the api_key setting in
+# /opt/mailman/mm/mailman-hyperkitty.cfg (quoted here, not there).
+MAILMAN_ARCHIVER_KEY = 'Secret_Hyperkitty_API_Key'
+
+# The sender of emails from Django such as address confirmation requests.
+# Set this to a valid email address.
+DEFAULT_FROM_EMAIL = 'django@lists.internal'
+
+# The sender of error messages from Django. Set this to a valid email
+# address.
+SERVER_EMAIL = 'django@lists.internal'
+----
+
+
+Create missing directories and create static contents.
+
+
+----
+(venv)$ mkdir -p /opt/mailman/web/logs
+(venv)$ mkdir -p /opt/mailman/web/static
+
+
+(venv)$ mailman-web migrate
+(venv)$ mailman-web collectstatic
+(venv)$ mailman-web compress
+(venv)$ mailman-web compilemessages
+----
+
+setup wsgi server
+
+----
+(venv)$ pip install uwsgi
+----
+
+create `/etc/mailman3/uwsgi.ini`
+
+
+----
+# /etc/mailman3/uwsgi.ini
+#
+[uwsgi]
+# Port on which uwsgi will be listening.
+http-socket = 0.0.0.0:8000
+# If running uwsgi from the virtual environment ...
+virtualenv = /opt/mailman/venv/
+
+module=mailman_web.wsgi:application
+# Set PYTHONPATH
+env = PYTHONPATH=/etc/mailman3/
+# The default settings module.
+env = DJANGO_SETTINGS_MODULE=settings
+
+# Setup default number of processes and threads per process.
+master = true
+processes = 2
+threads = 2
+
+# Setup the django_q related worker processes.
+attach-daemon = /opt/mailman/venv/bin/mailman-web qcluster
+
+# Setup the request log.
+req-logger = file:/opt/mailman/web/logs/uwsgi.log
+
+# Log qcluster commands separately.
+logger = qcluster file:/opt/mailman/web/logs/uwsgi-qcluster.log
+log-route = qcluster uwsgi-daemons
+
+# Last log and it logs the rest of the stuff.
+logger = file:/opt/mailman/web/logs/uwsgi-error.log
+----
+
+
+Test run:
+
+
+----
+(venv)$ uwsgi --ini /etc/mailman3/uwsgi.ini
+----
+
+Setup fulltext search (xapian)
+
+----
+(venv)$ export XAPIAN_VERSION="1.4.23"
+(venv)$ curl https://raw.githubusercontent.com/notanumber/xapian-haystack/master/xapian_wheel_builder.sh -o xapian_wheel_builder.sh
+(venv)$ bash xapian_wheel_builder.sh $XAPIAN_VERSION
+
+(venv)$ pip install xapian-1.4.23-cp310-cp310-linux_x86_64.whl xapian-haystack
+----
+
+
+Configure mailman to use `Xapian` full text search:
+
+`/etc/mailman3/settings.py`
+
+----
+# add to /etc/mailman3/settings.py
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'PATH': "/opt/mailman/web/xapian_index",
+        'ENGINE': 'xapian_backend.XapianEngine'
+    },
+}
+----
+
+
+Automatically starting mailman-web
+
+Create `/etc/systemd/system/mailmanweb.service`
+
+----
+[Unit]
+Description=GNU Mailman Web UI
+After=syslog.target network.target postgresql.service mailman3.service
+
+[Service]
+Environment="PYTHONPATH=/etc/mailman3/"
+User=mailman
+Group=mailman
+ExecStart=/opt/mailman/venv/bin/uwsgi --ini /etc/mailman3/uwsgi.ini
+KillSignal=SIGINT
+
+[Install]
+WantedBy=multi-user.target
+----
+
+Enable and start it
+
+----
+sudo systemctl daemon-reload
+sudo systemctl enable mailmanweb
+sudo systemctl start mailmanweb
+----
+
+
+Check if it is running
+
+----
+systemctl status mailmanweb
+----
+
+Cron jobs for mailman web
+
+----
+sudo -u mailman crontab -e
+
+
+* * * * *          /opt/mailman/venv/bin/mailman-web runjobs minutely
+0,15,30,45 * * * * /opt/mailman/venv/bin/mailman-web runjobs quarter_hourly
+@hourly            /opt/mailman/venv/bin/mailman-web runjobs hourly
+@daily             /opt/mailman/venv/bin/mailman-web runjobs daily
+@weekly            /opt/mailman/venv/bin/mailman-web runjobs weekly
+@monthly           /opt/mailman/venv/bin/mailman-web runjobs monthly
+@yearly            /opt/mailman/venv/bin/mailman-web runjobs yearly
+----
+
+nginx configuration
+
+----
+/etc/nginx/conf.d/local.conf
+----
+
+Find the entry for 80 default_server, server_name lists.internal
+and set it as follows:
+
+----
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+
+    server_name lists.internal;
+    location /static/ {
+        alias /opt/mailman/web/static/;
+    }
+
+    location / {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $remote_addr;
+    }
+
+    location /.well-known/acme-challenge/ {
+        alias /home/user-data/ssl/lets_encrypt/webroot/.well-known/acme-challenge/;
+    }
+
+}
+----
+
+
+after all we must create a superuser account
+
+
+----
+(venv)$ mailman-web createsuperuser
+----
+
+
+You must add the domain name to `CSRF_TRUSTED_ORIGINS` in
+
+
+`/etc/mailman3/settings.py`:
+
+----
+CSRF_TRUSTED_ORIGINS = [
+    "http://lists.internal:8880"
+]
+----
+
+
+
+*FIXME*:  In order for the mailbox hash list to work, add it to
+virtual_mailbox_maps in postfix main.cf and not to local_recipient_maps
+
+*FIXME*: In order to have correct URL requests in postorius, add the following
+to /etc/mailman3/settings.py
+
+----
+POSTORIUS_TEMPLATE_BASE_URL = "http://lists.internal:8880"
+----
+
+*FIXME*: Change SITE_ID to 2   in /etc/mailman3/settings.py to fix the
+wrongly displayed "example.com" in the upper left corner of the web gui
+
+After that you will get an overwritten nginx configuration which will redirect
+from port 80 to https. Get rid of it again and restore the original config.
+In firefox you might need to clear the browser cache for this nonsense.
+
+
+
+==== Native mutt configuration
+
+To work with this server under Linux, you can use `mutt` and `git send-email`
+out of the box with the following configuration:
+
+
+`~/.mutt/muttrc`
+
+```
+set imap_user = are@lists.internal
+set imap_pass = YOURPASSWORD 
+set folder = imaps://are@lists.internal@lists.internal:8993/
+
+set spoolfile = "=INBOX"
+mailboxes =INBOX
+
+set record = "imaps://lists.internal:8993/Sent Mail"
+set postponed = "imaps://lists.internal:8993/Drafts"
+set mbox = "imaps://lists.internal:8993/All Mail"
+set header_cache = "~/.mutt/cache/headers"
+set message_cachedir = "~/.mutt/cache/bodies"
+
+set smtp_url = "smtp://are@lists.internal:YOURPASSWORD@lists.internal:8587/"
+set smtp_pass = $imap_pass
+set ssl_force_tls = no
+set ssl_starttls = yes
+
+set editor = "vim"
+set edit_headers = yes
+set charset = UTF-8
+
+unset use_domain
+```
+
+And for git:
+
+----
+sendemail.from=are@lists.internal
+sendemail.smtpdomain=lists.internal
+sendemail.smtpauth=PLAIN LOGIN
+sendemail.smtppass=YOURPASSWORD
+sendemail.smtpserverport=8587
+sendemail.smtpencryption=tls
+sendemail.smtpsslcertpath=
+----
+
+The last line will make git sendemail accept all certificates without a check.
+
+
+==== Native mutt configuration
+
+In `msys2` in windows you will have problems with native SSL support. For this to
+work you must use `msmtp`, configure it and tell `mutt` and `git send-email` to use
+it for sending mail.
+
+
+The configuration file in MSYS2 for `msmtp` is
+
+`~/msmtprc.txt`
+
+----
+defaults
+auth on
+tls on
+logfile ~/.msmtp.log
+tls_certcheck off
+
+account lists
+host lists.internal
+port 8465
+tls_starttls off
+from are@lists.internal
+user are@lists.internal
+password YOURPASSWORD
+
+acount default: lists
+----
+
+
+Now in `~/.mutt/muttrc`, delete all smtp settings and instead add the following
+
+
+----
+set sendmail="/mingw64/bin/msmtp -a lists"
+----
+
+You can ommit the `-a` parameter if you only have one account configured.
+
+Likewise in `git config` you remove smtp settings and set
+
+
+----
+sendemail.from=are@lists.internal
+sendemail.smtpserver=/mingw64/bin/msmtp
+----
+
+Also don't forget  to set
+
+----
+C:\windows\system32\drivers\etc\hosts
+----
+
+to include
+
+----
+IP-OF-THE-INBOX         lists.internal box.lists.internal
+----

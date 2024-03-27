@@ -39,6 +39,8 @@ include::tools.adoc[]
 
 include::net.adoc[]
 
+include::mail.adoc[]
+
 include::X.adoc[]
 
 include::wm.adoc[]
