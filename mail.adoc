@@ -534,7 +534,7 @@ chattr +i /etc/nginx/conf.d/local.conf
 ----
 
 
-==== Native mutt configuration
+==== Mutt configuration for native linux
 
 To work with this server under Linux, you can use `mutt` and `git send-email`
 out of the box with the following configuration:
@@ -583,7 +583,7 @@ sendemail.smtpsslcertpath=
 The last line will make git sendemail accept all certificates without a check.
 
 
-==== Native mutt configuration
+==== Mutt configuration for MSYS2 on Windows
 
 In `msys2` in windows you will have problems with native SSL support. For this to
 work you must use `msmtp`, configure it and tell `mutt` and `git send-email` to use
