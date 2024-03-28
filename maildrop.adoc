@@ -1,0 +1,27 @@
+==== Drop specific recipient domain
+
+If you want to prevent sending mail to a specific domain
+from postfix, do the following:
+
+Add `/etc/postfix/transport` to `transport_maps` in `/etc/postfix/main.cf`:
+
+
+----
+transport_maps = .... hash:/etc/postfix/transport
+----
+
+
+In `/etc/postfix/transport`, add
+
+----
+domain.de      discard:
+----
+
+where `domain.de` is the domain you want to discard.
+
+Don't forget to run
+
+----
+postmap /etc/postfix/transport
+systemctl restart postfix
+----

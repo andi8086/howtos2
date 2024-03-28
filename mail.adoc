@@ -634,3 +634,6 @@ to include
 ----
 IP-OF-THE-INBOX         lists.internal box.lists.internal
 ----
+
+
+include::maildrop.adoc[]

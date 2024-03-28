@@ -27,6 +27,7 @@ DOCFILES := tips.adoc \
 		i3.adoc \
 		net.adoc \
 		mail.adoc \
+		maildrop.adoc \
 		kernel.adoc \
 		systemd-overlay.adoc \
 		pacman.adoc \
