@@ -525,6 +525,13 @@ After that you will get an overwritten nginx configuration which will redirect
 from port 80 to https. Get rid of it again and restore the original config.
 In firefox you might need to clear the browser cache for this nonsense.
 
+*FIXME*: `nginx.conf` keeps changing... to prevent this and avoid the
+really annoying redirect to `https`, make `/etc/nginx/conf.d/local.conf`
+immutable:
+
+----
+chattr +i /etc/nginx/conf.d/local.conf
+----
 
 
 ==== Native mutt configuration
