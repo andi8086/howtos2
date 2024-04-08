@@ -518,6 +518,17 @@ to /etc/mailman3/settings.py
 POSTORIUS_TEMPLATE_BASE_URL = "http://lists.internal:8880"
 ----
 
+*FIXME*: Sometimes, new posts vanish and reappear randomly, as well as
+participants. To fix this, disable django caching and add to `settings.py`:
+
+----
+CACHES = {
+        'default': {
+                'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+        }
+}
+----
+
 *FIXME*: Change SITE_ID to 2   in /etc/mailman3/settings.py to fix the
 wrongly displayed "example.com" in the upper left corner of the web gui
 
