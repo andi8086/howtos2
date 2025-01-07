@@ -283,3 +283,39 @@ for example, or whatever you need and restart with
 # systemctl daemon-reload
 # systemctl restart php-fpm
 ```
+
+=== Virtual ethernet and simulators
+
+Virtual ethernet pairs come in handy if virtual machines use `pcap` drivers to
+capture packets of existing ethernet ports. This generally does not work with
+wlan devices since they do not support promiscious mode. However, one does not
+need to use a real ethernet device, but can use a virtual one, where the peer
+side can be bound to the `pcap` driver side and the `veth` side can be used
+for direction communications or be bound to a bridge with real interfaces.
+
+```
+ip link add dev veth type veth peer name peer
+ip link set veth up
+ip link set peer up
+ip link addr add xx.xx.xx.xx/24 dev veth
+```
+
+We do NOT add an IP address to the peer side, since this is done by the
+pcap driver of the simulated/virtual machine to be connected.
+
+There is however one caveat, namely optimization features that are not supported
+by `veth` devices:
+
+==== checksum offloading
+
+It seems per default, ip checksum offloading is enabled, thereby transfering the
+task of calculating the IP header checksums to the hardware. This improves
+performance, is however not done by `veth` because there is no real hardware.
+
+This has to be disabled with `ethtool`:
+
+```
+# ethtool --offload veth rx off tx off
+# ethtool --offload peer rx off tx off
+```
+
